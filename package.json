@@ -1,0 +1,11 @@
+{
+  "name": "taro-minify-pack",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+  },
+  "author": "",
+  "license": "ISC"
+}
