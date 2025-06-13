@@ -69,7 +69,7 @@ export default (ctx: IPluginContext, pluginOpts: DynamicPackOpts) => {
 
     chain.merge({
       output: {
-        chunkFilename: 'async/[contenthash].js', // 异步模块输出路径
+        chunkFilename: `${finalOpts.dynamicModuleJsDir}/[contenthash].js`, // 异步模块输出路径
         path: path.resolve(__dirname, 'dist'),
         clean: true,
       },
