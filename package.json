@@ -20,6 +20,7 @@
     "@tarojs/taro": "^4.0.9",
     "eslint": "^9.22.0",
     "md5": "^2.3.0",
+    "mini-css-extract-plugin": "^2.9.2",
     "postcss": "^8.5.3",
     "typescript": "^5.8.2",
     "webpack": "^5.98.0",
