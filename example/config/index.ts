@@ -17,8 +17,7 @@ export default defineConfig<'webpack5'>(async (merge, {command, mode}) => {
     },
     sourceRoot: 'src',
     outputRoot: 'dist',
-    presets: ['taro-minify-pack'],
-    plugins: [],
+    plugins: ['@taro-minify-pack/async-pack'],
     defineConstants: {},
     copy: {
       patterns: [],

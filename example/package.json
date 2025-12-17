@@ -51,9 +51,9 @@
     "@tarojs/taro": "4.0.8",
     "@tarojs/plugin-framework-react": "4.0.8",
     "@tarojs/react": "4.0.8",
+    "@taro-minify-pack/async-pack": "workspace:*",
     "react-dom": "^18.0.0",
-    "react": "^18.0.0",
-    "taro-minify-pack": "workspace:*"
+    "react": "^18.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",

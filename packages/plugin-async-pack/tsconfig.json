@@ -26,6 +26,5 @@
     "src"
   ],
   "exclude": [
-    "**/remote-assets/**/*" // todo: remote-assets 逻辑待完善，暂时排除 remote-assets 目录下的所有文件
   ]
 }
