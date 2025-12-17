@@ -6,6 +6,7 @@ module.exports = {
       framework: 'react',
       ts: true,
       compiler: 'webpack5',
+      'dynamic-import-node': process.env.TARO_ENV !== 'weapp', // 在原有基础上添加这个配置即可
     }]
   ]
 }
