@@ -1,10 +1,12 @@
 import {defineConfig, type UserConfigExport} from '@tarojs/cli'
+import {aliOssUploadAdapter} from '@taro-minify-pack/preset'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import devConfig from './dev'
 import prodConfig from './prod'
+import path from "path";
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
-export default defineConfig<'webpack5'>(async (merge, {command, mode}) => {
+export default defineConfig<'webpack5'>(async (merge) => {
   const baseConfig: UserConfigExport<'webpack5'> = {
     projectName: 'example',
     date: '2025-3-18',
@@ -17,7 +19,26 @@ export default defineConfig<'webpack5'>(async (merge, {command, mode}) => {
     },
     sourceRoot: 'src',
     outputRoot: 'dist',
-    plugins: ['@taro-minify-pack/async-pack'],
+    presets: [
+      [
+        '@taro-minify-pack/preset', {
+        remoteAssets: {
+          pathAlias: {
+            '@': path.resolve(__dirname, '../src/'),
+            '~@': path.resolve(__dirname, '../src/'),
+          },
+          assetsDirPath: path.resolve(__dirname, '../src/assets/'),
+          uploader: aliOssUploadAdapter({
+            accessKeyId: 'your-access-key-id',
+            accessKeySecret: 'your-access-key-secret',
+            bucketName: 'your-bucket-name',
+            region: 'your-region',
+          })
+        },
+        asyncPack: true
+      }
+      ]
+    ],
     defineConstants: {},
     copy: {
       patterns: [],
@@ -26,7 +47,7 @@ export default defineConfig<'webpack5'>(async (merge, {command, mode}) => {
     framework: 'react',
     compiler: {
       type: 'webpack5',
-      prebundle:{
+      prebundle: {
         enable: false,
       }
     },

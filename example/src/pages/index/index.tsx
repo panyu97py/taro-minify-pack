@@ -1,6 +1,7 @@
-import { View, Text } from '@tarojs/components'
+import {View, Text, Image} from '@tarojs/components'
 import { useLoad } from '@tarojs/taro'
 import React, {Suspense} from "react";
+import bg from '@/assets/images/bg.png'
 import './index.less'
 
 const AsyncComponentFirst = React.lazy(async () => {
@@ -26,6 +27,7 @@ export default function Index () {
         <AsyncComponentFirst />
         <AsyncComponentSecond />
       </Suspense>
+      <Image src={bg} />
       <Text>Hello world!</Text>
     </View>
   )

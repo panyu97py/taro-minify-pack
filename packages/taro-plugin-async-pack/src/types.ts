@@ -1,6 +1,6 @@
-import { Source } from 'webpack-sources';
+import { Source } from 'webpack-sources'
 
-export interface DynamicPackOpts {
+export interface AsyncPackOpts {
   dynamicModuleJsDir: string;
   dynamicModuleStyleFile: string;
 }

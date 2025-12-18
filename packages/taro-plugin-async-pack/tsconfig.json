@@ -7,24 +7,14 @@
     "declaration": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "declarationDir": "dist/types/",
     // 声明文件生成到的文件目录
     "outDir": "./dist/",
     "skipLibCheck": true,
     /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "types": [
-      "@types/node"
-    ]
+    "lib": ["esnext", "dom"],
+    "types": ["@types/node"]
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-  ]
+  "include": ["src"]
 }

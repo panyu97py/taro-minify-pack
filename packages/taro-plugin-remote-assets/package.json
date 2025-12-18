@@ -1,11 +1,11 @@
 {
-  "name": "@taro-minify-pack/plugin-async-pack",
+  "name": "@taro-minify-pack/plugin-remote-assets",
   "version": "0.0.0",
   "description": "",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "build": "tsc"
+    "build": "tsc && tsc-alias"
   },
   "author": "",
   "license": "ISC",
@@ -19,7 +19,7 @@
     "@supercharge/promise-pool": "^3.2.0",
     "@tarojs/service": "^4.0.9",
     "@tarojs/taro": "^4.0.9",
-    "eslint": "^9.22.0",
+    "ali-oss": "^6.23.0",
     "md5": "^2.3.0",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss": "^8.5.3",
@@ -36,6 +36,12 @@
     "@types/node": "^18.19.130",
     "@types/webpack-sources": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
-    "@typescript-eslint/parser": "^8.26.1"
+    "@typescript-eslint/parser": "^8.26.1",
+    "eslint": "^8.19.0",
+    "eslint-plugin-n": "^15.2.3",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "tsc-alias": "^1.8.16"
   }
 }

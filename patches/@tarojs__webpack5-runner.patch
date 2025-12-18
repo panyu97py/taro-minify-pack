@@ -1,0 +1,39 @@
+diff --git a/dist/postcss/postcss.h5.js b/dist/postcss/postcss.h5.js
+index e0098f433e4beae04a121f4472dae0e5cc9ada6c..c09dedb15c3eeaf39f1b70f9df66a1ef21133aab 100644
+--- a/dist/postcss/postcss.h5.js
++++ b/dist/postcss/postcss.h5.js
+@@ -89,7 +89,7 @@ const getPostcssPlugins = function (appPath, option = []) {
+         }
+         if (!(0, helper_1.isNpmPkg)(pluginName)) {
+             // local plugin
+-            pluginName = node_path_1.default.join(appPath, pluginName);
++            pluginName = node_path_1.default.isAbsolute(pluginName) ? pluginName : node_path_1.default.join(appPath, pluginName);
+         }
+         try {
+             const pluginPath = (0, helper_1.resolveSync)(pluginName, { basedir: appPath }) || '';
+diff --git a/dist/postcss/postcss.harmony.js b/dist/postcss/postcss.harmony.js
+index b4549722231c35a3cdac16988077aa879d58bea6..570f292d7198611bb23061676173d654a4278832 100644
+--- a/dist/postcss/postcss.harmony.js
++++ b/dist/postcss/postcss.harmony.js
+@@ -79,7 +79,7 @@ const getPostcssPlugins = function (appPath, option = []) {
+         }
+         if (!(0, helper_1.isNpmPkg)(pluginName)) {
+             // local plugin
+-            pluginName = node_path_1.default.join(appPath, pluginName);
++            pluginName = node_path_1.default.isAbsolute(pluginName) ? pluginName : node_path_1.default.join(appPath, pluginName);
+         }
+         try {
+             const pluginPath = (0, helper_1.resolveSync)(pluginName, { basedir: appPath }) || '';
+diff --git a/dist/postcss/postcss.mini.js b/dist/postcss/postcss.mini.js
+index 791b2a856f3736b83a3993bc5d19071b59638d3a..390f930eef053704f702101d51497e4aaf199ad7 100644
+--- a/dist/postcss/postcss.mini.js
++++ b/dist/postcss/postcss.mini.js
+@@ -78,7 +78,7 @@ const getPostcssPlugins = function (appPath, option = []) {
+         }
+         if (!(0, helper_1.isNpmPkg)(pluginName)) {
+             // local plugin
+-            pluginName = node_path_1.default.join(appPath, pluginName);
++            pluginName = node_path_1.default.isAbsolute(pluginName) ? pluginName : node_path_1.default.join(appPath, pluginName);
+         }
+         try {
+             const pluginPath = (0, helper_1.resolveSync)(pluginName, { basedir: appPath }) || '';
