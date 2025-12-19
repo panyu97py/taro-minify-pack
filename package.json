@@ -10,7 +10,7 @@
     "publish": "pnpm --filter @taro-minify-pack/* publish",
     "release": "lerna version"
   },
-  "author": "",
+  "author": "yu.pan",
   "license": "ISC",
   "dependencies": {
     "lerna": "^9.0.3"

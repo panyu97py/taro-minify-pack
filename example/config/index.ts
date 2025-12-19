@@ -1,9 +1,9 @@
+import path from 'path';
 import {defineConfig, type UserConfigExport} from '@tarojs/cli'
 import {aliOssUploadAdapter} from '@taro-minify-pack/preset'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import devConfig from './dev'
 import prodConfig from './prod'
-import path from "path";
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'webpack5'>(async (merge) => {
@@ -29,9 +29,11 @@ export default defineConfig<'webpack5'>(async (merge) => {
           },
           assetsDirPath: path.resolve(__dirname, '../src/assets/'),
           uploader: aliOssUploadAdapter({
+            customDomain:'https://your-custom-domain.com',
             accessKeyId: 'your-access-key-id',
             accessKeySecret: 'your-access-key-secret',
-            bucketName: 'your-bucket-name',
+            bucket: 'your-bucket-name',
+            bucketDir: 'bucketDir',
             region: 'your-region',
           })
         },

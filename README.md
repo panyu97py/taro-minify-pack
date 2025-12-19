@@ -1,7 +1,8 @@
 # `Taro` 小程序主包体积优化插件
 >  由于 `@tarojs/webpack5-runner` 不支持绝对路径注册 `postcss` 插件注册注册,使用`@taro-minify-pack/plugin-remote-assets`需要参考[pullRequest](https://github.com/NervJS/taro/pull/18683/files)自行 patch
 ## TODO
-* `aliOssUploadAdapter` 待实现
+* `aliOssUploadAdapter` 没有 oss 资源，待验证
+* `uploadAdapter` 适配更多平台（偷个懒，先实现 `aliOssUploadAdapter`）
 * `npm` 包还未发布, 待发布
 
 ## @taro-minify-pack/preset
@@ -23,31 +24,57 @@ yarn add @taro-minify-pack/preset
 pnpm add @taro-minify-pack/preset
 ```
 
-### 配置：
 ### 配置
+
+#### `babel`配置
+```ts
+// babel-preset-taro 更多选项和默认值：
+// https://docs.taro.zone/docs/next/babel-config
+module.exports = {
+    presets: [
+        ['taro', {
+            framework: 'react',
+            ts: true,
+            compiler: 'webpack5',
+            // 在原有基础上添加这个配置即可
+            'dynamic-import-node': process.env.TARO_ENV !== 'weapp', 
+        }]
+    ]
+}
+```
+#### `Taro` 配置
 ```js
 // config/index.js
 module.exports = {
-  presets: [
-      ['@taro-minify-pack/preset', {
-          // 开启远程资源上传, 优化主包体积,与 `@taro-minify-pack/plugin-remote-assets` 插件配置一致
-          remoteAssets: {
-              pathAlias: {
-                  '@': path.resolve(__dirname, '../src/'),
-                  '~@': path.resolve(__dirname, '../src/'),
-              },
-              assetsDirPath: path.resolve(__dirname, '../src/assets/'),
-              uploader: aliOssUploadAdapter({
-                  accessKeyId: 'your-access-key-id',
-                  accessKeySecret: 'your-access-key-secret',
-                  bucketName: 'your-bucket-name',
-                  region: 'your-region',
-              })
-          },
-          // 开启异步加载主包代码, 优化主包体积,也可以自定义与 `@taro-minify-pack/plugin-async-pack` 插件配置一致
-          asyncPack: true
-      }],
-  ],
+    compiler: {
+        type: 'webpack5',
+        prebundle: {
+            // 关闭预打包,这里和分包异步编译有冲突，当然如果只是 production 环境用异步分包的话就无所谓了
+            enable: false, 
+        }
+    },
+    presets: [
+        ['@taro-minify-pack/preset', {
+            // 开启远程资源上传, 优化主包体积,与 `@taro-minify-pack/plugin-remote-assets` 插件配置一致
+            remoteAssets: {
+                pathAlias: {
+                    '@': path.resolve(__dirname, '../src/'),
+                    '~@': path.resolve(__dirname, '../src/'),
+                },
+                assetsDirPath: path.resolve(__dirname, '../src/assets/'),
+                uploader: aliOssUploadAdapter({
+                    customDomain:'https://your-custom-domain.com',
+                    accessKeyId: 'your-access-key-id',
+                    accessKeySecret: 'your-access-key-secret',
+                    bucket: 'your-bucket-name',
+                    bucketDir: 'bucketDir',
+                    region: 'your-region',
+                })
+            },
+            // 开启异步加载主包代码, 优化主包体积,也可以自定义与 `@taro-minify-pack/plugin-async-pack` 插件配置一致
+            asyncPack: true
+        }],
+    ],
 };
 ```
 
