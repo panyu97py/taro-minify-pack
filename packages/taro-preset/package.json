@@ -4,17 +4,22 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "homepage": "https://github.com/panyu97py/taro-minify-pack",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panyu97py/taro-minify-pack.git"
+  },
   "scripts": {
     "build": "tsc"
   },
-  "author": "",
+  "author": "yu.pan",
   "license": "ISC",
   "dependencies": {
     "@taro-minify-pack/plugin-async-pack": "workspace:*",
-    "@taro-minify-pack/plugin-remote-assets": "workspace:*",
-    "@types/node": "^18.19.130"
+    "@taro-minify-pack/plugin-remote-assets": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^18.19.130",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",

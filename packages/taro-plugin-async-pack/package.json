@@ -4,11 +4,19 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "homepage": "https://github.com/panyu97py/taro-minify-pack",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panyu97py/taro-minify-pack.git"
+  },
   "scripts": {
     "build": "tsc"
   },
-  "author": "",
+  "author": "yu.pan",
   "license": "ISC",
+  "peerDependencies": {
+    "@tarojs/service": "^3.0.0"
+  },
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/generator": "^7.26.10",
@@ -16,17 +24,11 @@
     "@babel/template": "^7.26.9",
     "@babel/traverse": "^7.26.10",
     "@babel/types": "^7.26.10",
-    "@supercharge/promise-pool": "^3.2.0",
-    "@tarojs/service": "^4.0.9",
-    "@tarojs/taro": "^4.0.9",
-    "md5": "^2.3.0",
-    "mini-css-extract-plugin": "^2.9.2",
-    "postcss": "^8.5.3",
-    "typescript": "^5.8.2",
     "webpack": "^5.98.0",
     "webpack-sources": "^3.2.3"
   },
   "devDependencies": {
+    "@tarojs/service": "^4.0.9",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
@@ -40,6 +42,7 @@
     "eslint-plugin-n": "^15.2.3",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0"
+    "eslint-plugin-import": "^2.26.0",
+    "typescript": "^5.8.2"
   }
 }
