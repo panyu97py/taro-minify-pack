@@ -1,5 +1,5 @@
 # `Taro` 小程序主包体积优化插件
->  由于 `@tarojs/webpack5-runner` 不支持绝对路径注册 `postcss` 插件注册注册,https://github.com/NervJS/taro/pull/18683/files
+>  由于 `@tarojs/webpack5-runner` 不支持绝对路径注册 `postcss` 插件注册注册,使用`@taro-minify-pack/plugin-remote-assets`需要参考[pullRequest](https://github.com/NervJS/taro/pull/18683/files)自行 patch
 ## TODO
 * `aliOssUploadAdapter` 待实现
 * `npm` 包还未发布, 待发布
