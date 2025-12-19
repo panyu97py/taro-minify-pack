@@ -1,6 +1,7 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import { Uploader, UploaderAdapter } from '@/types'
+import { Uploader } from '@/types'
 import { generateFileUniqueKey, travelFiles } from '@/utils'
+import path from 'path'
 
 interface UploaderOpt {
     assetsDirPath?: string,
@@ -18,7 +19,8 @@ export const uploadAssets = async (opt: UploaderOpt) => {
     .for(assetsPaths)
     .process(async (localPath) => {
       const uniqueKey = generateFileUniqueKey(localPath)
-      return upload({ localPath, uniqueKey })
+      const { ext } = path.parse(localPath)
+      return upload({ localPath, uniqueKey, ext })
     })
 
   return remoteAssetInfoList

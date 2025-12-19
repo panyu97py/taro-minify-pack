@@ -128,9 +128,11 @@ module.exports = {
           assetsDirPath: path.resolve(__dirname, '../src/assets/'),
           // 上传适配器
           uploader: aliOssUploadAdapter({
+              customDomain:'https://your-custom-domain.com',
               accessKeyId: 'your-access-key-id',
               accessKeySecret: 'your-access-key-secret',
-              bucketName: 'your-bucket-name',
+              bucket: 'your-bucket-name',
+              bucketDir: 'bucketDir',
               region: 'your-region',
           })
       }],

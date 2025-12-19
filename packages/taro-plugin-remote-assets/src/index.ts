@@ -18,7 +18,7 @@ export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
     const { assetsDirPath, uploader } = pluginOpts
     const remoteAssetInfoList = await uploadAssets({ assetsDirPath, upload: uploader })
     const remoteAssetInfoMap = remoteAssetInfoList.reduce((result, item) => {
-      return { ...result, [item.localPath]: item.remotePath }
+      return { ...result, [item.localPath]: item.remoteUrl }
     }, {})
     saveCacheData(cacheFilePath, remoteAssetInfoMap)
   })
