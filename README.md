@@ -37,7 +37,7 @@ module.exports = {
             ts: true,
             compiler: 'webpack5',
             // 在原有基础上添加这个配置即可
-            'dynamic-import-node': process.env.TARO_ENV !== 'weapp', 
+            'dynamic-import-node': process.env.TARO_ENV !== 'weapp',
         }]
     ]
 }
@@ -50,7 +50,7 @@ module.exports = {
         type: 'webpack5',
         prebundle: {
             // 关闭预打包,这里和分包异步编译有冲突，当然如果只是 production 环境用异步分包的话就无所谓了
-            enable: false, 
+            enable: false,
         }
     },
     presets: [
@@ -81,7 +81,7 @@ module.exports = {
 
 ## @taro-minify-pack/plugin-async-pack
 > 异步加载主包代码, 优化主包体积
-> 
+>
 > 注：异步模块样式文件无法异步加载，已默认在主包样式文件中引入
 
 ### 安装
@@ -100,17 +100,42 @@ yarn add @taro-minify-pack/plugin-async-pack
 pnpm add @taro-minify-pack/plugin-async-pack
 ```
 ### 配置
+
+#### `babel`配置
+```ts
+// babel-preset-taro 更多选项和默认值：
+// https://docs.taro.zone/docs/next/babel-config
+module.exports = {
+    presets: [
+        ['taro', {
+            framework: 'react',
+            ts: true,
+            compiler: 'webpack5',
+            // 在原有基础上添加这个配置即可
+            'dynamic-import-node': process.env.TARO_ENV !== 'weapp', 
+        }]
+    ]
+}
+```
+#### `Taro` 配置
 ```js
 // config/index.js
 module.exports = {
-  plugins: [
-      ['@taro-minify-pack/plugin-async-pack', {
-        // js 异步分包名
-        dynamicModuleJsDir: 'dynamic-common',
-        // 异步模块样式文件名
-        dynamicModuleStyleFile: 'dynamic-common'
-      }],
-  ],
+    compiler: {
+        type: 'webpack5',
+        prebundle: {
+            // 关闭预打包,这里和分包异步编译有冲突，当然如果只是 production 环境用异步分包的话就无所谓了
+            enable: false,
+        }
+    },
+    plugins: [
+        ['@taro-minify-pack/plugin-async-pack', {
+            // js 异步分包名
+            dynamicModuleJsDir: 'dynamic-common',
+            // 异步模块样式文件名
+            dynamicModuleStyleFile: 'dynamic-common'
+        }],
+    ],
 };
 ```
 
@@ -121,7 +146,7 @@ const module = await import('./dynamic-module')
 
 ## @taro-minify-pack/plugin-remote-assets
 > 自动上传资源文件并替换路径
-> 
+>
 > 注：由于 `@tarojs/webpack5-runner` 不支持绝对路径注册 `postcss` 插件注册注册,已向`Taro`官方提交[pullRequest](https://github.com/NervJS/taro/pull/18683),有需要的可以参考[pullRequest](https://github.com/NervJS/taro/pull/18683/files)自行 patch
 
 
@@ -144,26 +169,26 @@ pnpm add @taro-minify-pack/plugin-remote-assets
 ```js
 // config/index.js
 module.exports = {
-  plugins: [
-      ['@taro-minify-pack/plugin-remote-assets', {
-          // 路径别名
-          pathAlias: {
-              '@': path.resolve(__dirname, '../src/'),
-              '~@': path.resolve(__dirname, '../src/'),
-          },
-          // 资源文件目录
-          assetsDirPath: path.resolve(__dirname, '../src/assets/'),
-          // 上传适配器
-          uploader: aliOssUploadAdapter({
-              customDomain:'https://your-custom-domain.com',
-              accessKeyId: 'your-access-key-id',
-              accessKeySecret: 'your-access-key-secret',
-              bucket: 'your-bucket-name',
-              bucketDir: 'bucketDir',
-              region: 'your-region',
-          })
-      }],
-  ],
+    plugins: [
+        ['@taro-minify-pack/plugin-remote-assets', {
+            // 路径别名
+            pathAlias: {
+                '@': path.resolve(__dirname, '../src/'),
+                '~@': path.resolve(__dirname, '../src/'),
+            },
+            // 资源文件目录
+            assetsDirPath: path.resolve(__dirname, '../src/assets/'),
+            // 上传适配器
+            uploader: aliOssUploadAdapter({
+                customDomain:'https://your-custom-domain.com',
+                accessKeyId: 'your-access-key-id',
+                accessKeySecret: 'your-access-key-secret',
+                bucket: 'your-bucket-name',
+                bucketDir: 'bucketDir',
+                region: 'your-region',
+            })
+        }],
+    ],
 };
 ```
 
