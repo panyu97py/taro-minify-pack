@@ -86,10 +86,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     const dynamicPackagesConfig = { root: finalOpts.dynamicModuleJsDir, pages: [] }
 
-    const hasDynamicModule = (() => {
-      const isDynamicModuleDirExist = fs.existsSync(path.join(ctx.paths.outputPath, finalOpts.dynamicModuleJsDir))
-      return isDynamicModuleDirExist && fs.readdirSync(path.join(ctx.paths.outputPath, finalOpts.dynamicModuleJsDir)).length > 0
-    })()
+    const hasDynamicModule = Object.keys(assets).some((key) => key.startsWith(`${finalOpts.dynamicModuleJsDir}/`))
 
     const { resolveAlias = {}, subpackages = [] } = curAppJSONContent
 
