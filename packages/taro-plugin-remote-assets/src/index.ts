@@ -25,7 +25,6 @@ export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
 
   ctx.modifyRunnerOpts((curRunnerOpts) => {
     const { postcss: curPostcssOpts } = curRunnerOpts.opts
-    console.log(curPostcssOpts, path.resolve(__dirname, './path-transform/path-transform-postcss'))
     curRunnerOpts.opts.postcss = {
       ...curPostcssOpts,
       [path.resolve(__dirname, './path-transform/path-transform-postcss')]: {
