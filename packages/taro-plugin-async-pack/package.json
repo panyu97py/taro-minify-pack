@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/plugin-async-pack",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,10 +39,10 @@
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",
-    "eslint-plugin-n": "^15.2.3",
-    "eslint-plugin-promise": "^6.0.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.3",
+    "eslint-plugin-promise": "^6.0.0",
     "typescript": "^5.8.2"
   }
 }
