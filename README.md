@@ -3,7 +3,6 @@
 ## TODO
 * `aliOssUploadAdapter` 没有 oss 资源，待验证
 * `uploadAdapter` 适配更多平台（偷个懒，先实现 `aliOssUploadAdapter`）
-* `npm` 包还未发布, 待发布
 
 ## @taro-minify-pack/preset
 > 预设配置, 包含 `@taro-minify-pack/plugin-async-pack` 和 `@taro-minify-pack/plugin-remote-assets`
