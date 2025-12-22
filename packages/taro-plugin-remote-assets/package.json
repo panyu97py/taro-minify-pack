@@ -16,7 +16,7 @@
     "build": "tsc && tsc-alias"
   },
   "author": "yu.pan",
-  "license": "ISC",
+  "license": "MIT",
   "peerDependencies": {
     "@tarojs/service": "^3.0.0"
   },

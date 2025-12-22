@@ -16,7 +16,7 @@
     "build": "tsc"
   },
   "author": "yu.pan",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/generator": "^7.26.10",

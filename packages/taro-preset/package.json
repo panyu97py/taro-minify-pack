@@ -16,7 +16,7 @@
     "build": "tsc"
   },
   "author": "yu.pan",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@taro-minify-pack/plugin-async-pack": "workspace:*",
     "@taro-minify-pack/plugin-remote-assets": "workspace:*"
