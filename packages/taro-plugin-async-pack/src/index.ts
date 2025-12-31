@@ -88,12 +88,12 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     const hasDynamicModule = Object.keys(assets).some((key) => key.startsWith(`${finalOpts.dynamicModuleJsDir}/`))
 
-    const { resolveAlias = {}, subPackages, subpackages } = curAppJSONContent
+    const { resolveAlias = {}, subPackages, subpackages, ...otherAppJSON } = curAppJSONContent
 
     const finalSubPackages = subPackages || subpackages || []
 
     const newAppJSONContent = {
-      ...curAppJSONContent,
+      ...otherAppJSON,
       subPackages: hasDynamicModule ? [...finalSubPackages, dynamicPackagesConfig] : finalSubPackages,
       resolveAlias: {
         ...resolveAlias,
