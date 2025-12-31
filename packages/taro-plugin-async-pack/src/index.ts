@@ -1,22 +1,18 @@
 import type { IPluginContext } from '@tarojs/service'
-import { RawSource } from 'webpack-sources'
-import { transformWebpackRuntime } from './transform-webpack-runtime'
-import {
-  TransformOpt,
-  TransformBeforeCompressionPlugin,
-  PLUGIN_NAME as TransformBeforeCompressionPluginName
-} from './transform-before-compression-plugin'
-import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge-output'
-import { AsyncPackOpts } from './types'
-import { transformAppStylesheet } from './transform-app-stylesheet'
 import fs from 'fs'
 import path from 'path'
+import { transformWebpackRuntime } from './transform-webpack-runtime'
+import { TransformOpt, TransformBeforeCompressionPlugin, PLUGIN_NAME as TransformBeforeCompressionPluginName } from './transform-before-compression-plugin'
+import { InjectStyleComponentPlugin, PLUGIN_NAME as InjectStyleComponentPluginName, InjectStyleComponentName } from './inject-style-component'
+import { transformAppConfig } from './transform-app-config'
+import { transformPagesWXml } from './transform-pages-wxml'
+import { RawSource } from 'webpack-sources'
+import { AsyncPackOpts } from './types'
 
 export { AsyncPackOpts } from './types'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
-  dynamicModuleJsDir: 'dynamic-common',
-  dynamicModuleStyleFile: 'dynamic-common'
+  dynamicPackageName: 'dynamic-common'
 }
 
 export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
@@ -47,7 +43,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     chain.merge({
       output: {
-        chunkFilename: `${finalOpts.dynamicModuleJsDir}/[chunkhash].js`, // 异步模块输出路径
+        chunkFilename: `${finalOpts.dynamicPackageName}/[chunkhash].js`, // 异步模块输出路径
         path: ctx.paths.outputPath,
         clean: true
       }
@@ -56,51 +52,39 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
     chain.plugin('miniCssExtractPlugin')
       .tap((args) => {
         const [options] = args
-        const finalOption = { ...options, chunkFilename: `${finalOpts.dynamicModuleStyleFile}/[chunkhash].wxss` }
-        return [finalOption]
+        const chunkFilename = `${finalOpts.dynamicPackageName}/[chunkhash].wxss`
+        return [{ ...options, chunkFilename }]
       })
 
     chain.plugin(TransformBeforeCompressionPluginName).use(TransformBeforeCompressionPlugin, [{
-      test: /^(runtime\.js|app\.wxss)$/,
+      test: /^(runtime\.js)$/,
       transform: (opt: TransformOpt) => {
-        const { source, assetName, assets } = opt
+        const { source, assets } = opt
         const transformOpts = { ...finalOpts, assets }
-        if (/^app\.wxss$/.test(assetName)) return transformAppStylesheet(source as string, transformOpts)
-        if (/^runtime\.js$/.test(assetName)) return transformWebpackRuntime(source as string, transformOpts)
-        return source as string
+        return transformWebpackRuntime(source as string, transformOpts)
       }
     }])
 
-    chain.plugin(MergeOutputPluginName).use(MergeOutputPlugin, [{
-      test: new RegExp(`^${finalOpts.dynamicModuleStyleFile}\\/.*\\.wxss$`),
-      outputFile: `${finalOpts.dynamicModuleStyleFile}.wxss`
-    }])
+    chain.plugin(InjectStyleComponentPluginName).use(InjectStyleComponentPlugin, [finalOpts])
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
-    const curAppJSON = assets['app.json']
+    const hasDynamicModule = Object.keys(assets).some((key) => key.startsWith(`${finalOpts.dynamicPackageName}/`))
 
-    if (!curAppJSON) return
+    if (!hasDynamicModule) return
 
-    const curAppJSONContent = JSON.parse(curAppJSON.source())
+    const asyncComponentPath = `./${InjectStyleComponentPlugin.generateComponentPath(finalOpts)}`
 
-    const dynamicPackagesConfig = { root: finalOpts.dynamicModuleJsDir, pages: [] }
+    const asyncComponents = { [InjectStyleComponentName]: asyncComponentPath }
 
-    const hasDynamicModule = Object.keys(assets).some((key) => key.startsWith(`${finalOpts.dynamicModuleJsDir}/`))
+    const filePath = path.resolve(__dirname, './singleton-promise.js')
 
-    const { resolveAlias = {}, subPackages, subpackages, ...otherAppJSON } = curAppJSONContent
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf-8' })
 
-    const finalSubPackages = subPackages || subpackages || []
+    assets['singleton-promise.js'] = new RawSource(fileContent)
 
-    const newAppJSONContent = {
-      ...otherAppJSON,
-      subPackages: hasDynamicModule ? [...finalSubPackages, dynamicPackagesConfig] : finalSubPackages,
-      resolveAlias: {
-        ...resolveAlias,
-        [`${finalOpts.dynamicModuleJsDir}/*`]: `/${finalOpts.dynamicModuleJsDir}/*`
-      }
-    }
+    transformAppConfig({ ...finalOpts, assets, asyncComponents })
 
-    assets['app.json'] = new RawSource(JSON.stringify(newAppJSONContent, null, 2))
+    transformPagesWXml({ assets, asyncComponents })
   })
 }
