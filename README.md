@@ -3,6 +3,9 @@
 ## TODO
 * `aliOssUploadAdapter` 没有 oss 资源，待验证
 * `uploadAdapter` 适配更多平台（偷个懒，先实现 `aliOssUploadAdapter`）
+* 微信小程序样式分包（采用自定义组件并设置`styleIsolation`配置为`shared`,待解决问题：模拟器冷区启动有一瞬样式丢失）
+  * [微信小程序组件样式隔离](https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/wxml-wxss.html#%E7%BB%84%E4%BB%B6%E6%A0%B7%E5%BC%8F%E9%9A%94%E7%A6%BB)
+  * [跨分包自定义组件引用](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/async.html)
 
 ## @taro-minify-pack/preset
 > 预设配置, 包含 `@taro-minify-pack/plugin-async-pack` 和 `@taro-minify-pack/plugin-remote-assets`
