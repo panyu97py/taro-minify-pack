@@ -7,7 +7,7 @@ interface Opt{
 
 export const pathTransform = (opt: Opt) => {
   return (path: string) => {
-    const remoteAssetInfoMap = getCacheData(opt.cacheFilePath) || {}
+    const remoteAssetInfoMap = getCacheData(opt.cacheFilePath)
 
     const pathAliasRegMap = Object.keys(opt.pathAlias).reduce<Record<string, RegExp>>((result, key) => {
       return { ...result, [key]: new RegExp(`^${key}`) }

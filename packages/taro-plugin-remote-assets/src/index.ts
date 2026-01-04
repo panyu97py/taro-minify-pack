@@ -2,35 +2,34 @@ import path from 'path'
 import { RemoteAssetPluginOpt } from '@/types'
 import { IPluginContext } from '@tarojs/service'
 import { uploadAssets } from './upload-assets'
-import { saveCacheData } from './utils'
+import { getCacheData, saveCacheData } from './utils'
 import { pathTransform } from '@/path-transform/path-transform'
 
 export { RemoteAssetPluginOpt } from '@/types'
 
 export * from './upload-adapter'
 
-const cacheFilePath = path.resolve(__dirname, 'remote-assets-cache.json')
+const cacheFilePath = path.resolve(process.cwd(), 'node_modules', '.cache/remote-assets-cache.json')
 
 export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
   const transform = pathTransform({ cacheFilePath, pathAlias: pluginOpts.pathAlias || {} })
 
   ctx.onBuildStart(async () => {
     const { assetsDirPath, uploader } = pluginOpts
-    const remoteAssetInfoList = await uploadAssets({ assetsDirPath, upload: uploader })
+    const cacheData = getCacheData(cacheFilePath)
+    const remoteAssetInfoList = await uploadAssets({ assetsDirPath, cacheData, upload: uploader })
     const remoteAssetInfoMap = remoteAssetInfoList.reduce((result, item) => {
       return { ...result, [item.localPath]: item.remoteUrl }
-    }, {})
+    }, cacheData)
     saveCacheData(cacheFilePath, remoteAssetInfoMap)
   })
 
   ctx.modifyRunnerOpts((curRunnerOpts) => {
     const { postcss: curPostcssOpts } = curRunnerOpts.opts
+    const postCssPluginPathTransformPath = path.resolve(__dirname, './path-transform/path-transform-postcss')
     curRunnerOpts.opts.postcss = {
       ...curPostcssOpts,
-      [path.resolve(__dirname, './path-transform/path-transform-postcss')]: {
-        enabled: true,
-        config: { transform }
-      }
+      [postCssPluginPathTransformPath]: { enabled: true, config: { transform } }
     }
   })
 
@@ -40,10 +39,6 @@ export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
     chain.module
       .rule('script')
       .use('babelLoader')
-      .options({
-        plugins: [
-          [babelPluginPathTransformPath, { transform }]
-        ]
-      })
+      .options({ plugins: [[babelPluginPathTransformPath, { transform }]] })
   })
 }
