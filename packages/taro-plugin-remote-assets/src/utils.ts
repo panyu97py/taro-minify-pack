@@ -28,11 +28,13 @@ export const getCacheData = (cacheFilePath:string): any => {
     fs.accessSync(cacheFilePath)
     return JSON.parse(fs.readFileSync(cacheFilePath).toString())
   } catch (error) {
-    return null
+    return {}
   }
 }
 
 export const saveCacheData = (cacheFilePath:string, cacheData:any) => {
+  const cacheDirPath = path.dirname(cacheFilePath)
+  if (!fs.existsSync(cacheDirPath)) fs.mkdirSync(cacheDirPath, { recursive: true })
   fs.writeFileSync(cacheFilePath, JSON.stringify(cacheData))
 }
 
