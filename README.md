@@ -3,9 +3,6 @@
 ## TODO
 * `aliOssUploadAdapter` 没有 oss 资源，待验证
 * `uploadAdapter` 适配更多平台（偷个懒，先实现 `aliOssUploadAdapter`）
-* 微信小程序样式分包（采用自定义组件并设置`styleIsolation`配置为`shared`,待解决问题：模拟器冷区启动有一瞬样式丢失）
-  * [微信小程序组件样式隔离](https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/wxml-wxss.html#%E7%BB%84%E4%BB%B6%E6%A0%B7%E5%BC%8F%E9%9A%94%E7%A6%BB)
-  * [跨分包自定义组件引用](https://developers.weixin.qq.com/miniprogram/dev/framework/subpackages/async.html)
 
 ## @taro-minify-pack/preset
 > 预设配置, 包含 `@taro-minify-pack/plugin-async-pack` 和 `@taro-minify-pack/plugin-remote-assets`
@@ -82,9 +79,7 @@ module.exports = {
 
 
 ## @taro-minify-pack/plugin-async-pack
-> 异步加载主包代码, 优化主包体积
->
-> 注：异步模块样式文件无法异步加载，已默认在主包样式文件中引入
+> 异步加载主包代码, 优化主包体积（包含异步模块`js`与样式文件）
 
 ### 安装
 
@@ -132,10 +127,10 @@ module.exports = {
     },
     plugins: [
         ['@taro-minify-pack/plugin-async-pack', {
-            // js 异步分包名
-            dynamicModuleJsDir: 'dynamic-common',
-            // 异步模块样式文件名
-            dynamicModuleStyleFile: 'dynamic-common'
+            // 异步分包名前缀
+            dynamicPackageNamePrefix: 'dynamic-common',
+            // 异步分包数量
+            dynamicPackageCount: 2
         }],
     ],
 };
