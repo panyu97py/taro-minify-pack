@@ -5,6 +5,7 @@ import traverse, { Node } from '@babel/traverse'
 import * as types from '@babel/types'
 import type { AssignmentExpression, VariableDeclarator } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
+import { isDynamicPackageJsAsset, isDynamicPackageWXssAsset } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: CompilationAssets;
@@ -12,7 +13,6 @@ interface Opts extends AsyncPackOpts {
 
 const webpackLoadDynamicModuleTemplateDep = `
   var loadedDynamicModules = {};
-  console.log({hasStyleDynamicModuleList})
   var loadDynamicModule = function (dynamicModulePath) {
     var loadDynamicModuleFn = loadDynamicModuleFnMap[dynamicModulePath];
     return loadDynamicModuleFn ? loadDynamicModuleFn() : Promise.reject();
@@ -36,6 +36,10 @@ const webpackLoadDynamicModuleTemplate = `
       inProgress[dynamicModulePath].push(done);
       return;
     }
+    
+    const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
+    
+    const [,dynamicPackageName] = dynamicModulePath.match(dynamicPackageNameRegex) || [];
 
     const target = { src: dynamicModulePath };
 
@@ -43,7 +47,7 @@ const webpackLoadDynamicModuleTemplate = `
     
     const { SingletonPromise } = require('~/singleton-promise.js');
     
-    const waitStyle = hasStyleDynamicModuleList.includes(dynamicModulePath)?SingletonPromise.wait():Promise.resolve()
+    const waitStyle = hasStyleDynamicModuleList.includes(dynamicModulePath)?SingletonPromise.wait(dynamicPackageName):Promise.resolve();
     
     waitStyle.then(()=>{
       promiseRetry(function () {
@@ -75,19 +79,19 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   if (isProcessed) return
 
-  const { assets, dynamicPackageName } = opts
+  const { assets, dynamicPackageNamePrefix } = opts
 
   const dynamicJsAssets = Object.keys(assets).filter((assetName) => {
-    return new RegExp(`^${dynamicPackageName}/.*\\.js$`).test(assetName)
+    return isDynamicPackageJsAsset(dynamicPackageNamePrefix, assetName)
   })
 
   const dynamicWXssAssets = Object.keys(assets).filter((assetName) => {
-    return new RegExp(`^${dynamicPackageName}/.*\\.wxss$`).test(assetName)
+    return isDynamicPackageWXssAsset(dynamicPackageNamePrefix, assetName)
   })
 
   const loadDynamicModuleFnMapCode = (() => {
     const dynamicAssetsRequireTempCode = dynamicJsAssets.map((dynamicJsAsset) => {
-      return `'/${dynamicJsAsset}':function (){ return require.async('${dynamicJsAsset}'); }`
+      return `'/${dynamicJsAsset}':function (){ return require.async('/${dynamicJsAsset}'); }`
     })
 
     return `var loadDynamicModuleFnMap = {${dynamicAssetsRequireTempCode.join(',')}}`
@@ -101,19 +105,21 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
     return `var hasStyleDynamicModuleList = [${hasStyleDynamicAssetsList.map(item => `'/${item}'`).join(',')}]`
   })()
 
-  const templateCodeAst = template.ast(webpackLoadDynamicModuleTemplate)
+  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
 
-  const templateCodeDepAst = template.ast(webpackLoadDynamicModuleTemplateDep)
+  const templateCodeAst = template.statement(webpackLoadDynamicModuleTemplate)({ DYNAMIC_PACKAGE_NAME_REGEX })
 
   const loadDynamicModuleFnMapAst = template.ast(loadDynamicModuleFnMapCode)
 
   const hasStyleDynamicAssetsListAst = template.ast(hasStyleDynamicAssetsListCode)
 
-  assignmentExpressionNodePath.replaceWith(templateCodeAst as Node)
+  const templateCodeDepAst = template.ast(webpackLoadDynamicModuleTemplateDep)
 
-  assignmentExpressionNodePath.insertBefore(hasStyleDynamicAssetsListAst)
+  assignmentExpressionNodePath.replaceWith(templateCodeAst)
 
   assignmentExpressionNodePath.insertBefore(loadDynamicModuleFnMapAst)
+
+  assignmentExpressionNodePath.insertBefore(hasStyleDynamicAssetsListAst)
 
   assignmentExpressionNodePath.insertBefore(templateCodeDepAst)
 }

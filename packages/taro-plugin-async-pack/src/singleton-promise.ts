@@ -1,6 +1,6 @@
 export class SingletonPromise {
   // 静态属性存放单例
-  private static instance?: SingletonPromise
+  private static instance?: Record<string, SingletonPromise>
 
   private promise?: Promise<void>
 
@@ -12,18 +12,17 @@ export class SingletonPromise {
     })
   }
 
-  static getInstance () {
-    if (!SingletonPromise.instance) {
-      SingletonPromise.instance = new SingletonPromise()
-    }
-    return SingletonPromise.instance
+  static getInstance (key:string) {
+    if (!SingletonPromise.instance) SingletonPromise.instance = {}
+    if (!SingletonPromise.instance[key]) SingletonPromise.instance[key] = new SingletonPromise()
+    return SingletonPromise.instance[key]
   }
 
-  static wait () {
-    return this.getInstance().promise
+  static wait (key:string) {
+    return this.getInstance(key).promise
   }
 
-  static resolve () {
-    this.getInstance().resolve?.()
+  static resolve (key:string) {
+    this.getInstance(key).resolve?.()
   }
 }

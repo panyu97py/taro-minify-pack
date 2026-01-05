@@ -1,18 +1,21 @@
 import type { IPluginContext } from '@tarojs/service'
+import type { PathData } from 'webpack'
 import fs from 'fs'
 import path from 'path'
+import { RawSource } from 'webpack-sources'
 import { transformWebpackRuntime } from './transform-webpack-runtime'
 import { TransformOpt, TransformBeforeCompressionPlugin, PLUGIN_NAME as TransformBeforeCompressionPluginName } from './transform-before-compression-plugin'
 import { InjectStyleComponentPlugin, PLUGIN_NAME as InjectStyleComponentPluginName, InjectStyleComponentName } from './inject-style-component'
 import { transformAppConfig } from './transform-app-config'
 import { transformPagesWXml } from './transform-pages-wxml'
-import { RawSource } from 'webpack-sources'
+import { generateDynamicPackageName, generateKeyByOrder, hashModBigInt, isDynamicPackageName } from './utils'
 import { AsyncPackOpts } from './types'
 
 export { AsyncPackOpts } from './types'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
-  dynamicPackageName: 'dynamic-common'
+  dynamicPackageNamePrefix: 'dynamic-common',
+  dynamicPackageCount: 1
 }
 
 export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
@@ -30,6 +33,12 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     const newVendorsChunks = vendors ? { ...vendors, chunks: 'initial' } : vendors
 
+    const generateChunkFilename = (pathData:PathData, ext:string) => {
+      const { chunk } = pathData
+      const order = hashModBigInt(chunk?.hash || '', finalOpts.dynamicPackageCount)
+      return `${generateDynamicPackageName({ ...finalOpts, order })}/[chunkhash]${ext}`
+    }
+
     chain.optimization.merge({
       splitChunks: {
         ...existingSplitChunks,
@@ -43,7 +52,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     chain.merge({
       output: {
-        chunkFilename: `${finalOpts.dynamicPackageName}/[chunkhash].js`, // 异步模块输出路径
+        chunkFilename: (pathData:PathData) => generateChunkFilename(pathData, '.js'),
         path: ctx.paths.outputPath,
         clean: true
       }
@@ -52,7 +61,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
     chain.plugin('miniCssExtractPlugin')
       .tap((args) => {
         const [options] = args
-        const chunkFilename = `${finalOpts.dynamicPackageName}/[chunkhash].wxss`
+        const chunkFilename = (pathData:PathData) => generateChunkFilename(pathData, '.wxss')
         return [{ ...options, chunkFilename }]
       })
 
@@ -69,13 +78,18 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
-    const hasDynamicModule = Object.keys(assets).some((key) => key.startsWith(`${finalOpts.dynamicPackageName}/`))
+    const hasDynamicModule = Object.keys(assets).some((key) => isDynamicPackageName(finalOpts.dynamicPackageNamePrefix, key))
 
     if (!hasDynamicModule) return
 
-    const asyncComponentPath = `./${InjectStyleComponentPlugin.generateComponentPath(finalOpts)}`
-
-    const asyncComponents = { [InjectStyleComponentName]: asyncComponentPath }
+    const asyncComponents = (() => {
+      if (finalOpts.dynamicPackageCount <= 1) { return { [InjectStyleComponentName]: `${generateDynamicPackageName(finalOpts)}/${InjectStyleComponentName}` } }
+      return new Array(finalOpts.dynamicPackageCount).fill(null).reduce((result, _, order) => {
+        const dynamicPackageName = generateDynamicPackageName({ ...finalOpts, order })
+        const componentName = `${InjectStyleComponentName}-${generateKeyByOrder(order)}`
+        return { ...result, [componentName]: `${dynamicPackageName}/${InjectStyleComponentName}` }
+      }, {})
+    })()
 
     const filePath = path.resolve(__dirname, './singleton-promise.js')
 
