@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/plugin-async-pack",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,7 +28,8 @@
     "webpack-sources": "^3.2.3"
   },
   "devDependencies": {
-    "@tarojs/service": "^4.0.9",
+    "@tarojs/service": "^4.0.8",
+    "@tarojs/taro": "^4.0.8",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",

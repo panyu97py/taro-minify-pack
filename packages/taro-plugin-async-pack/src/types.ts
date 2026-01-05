@@ -1,8 +1,8 @@
 import { Source } from 'webpack-sources'
 
 export interface AsyncPackOpts {
-  dynamicModuleJsDir: string;
-  dynamicModuleStyleFile: string;
+  dynamicPackageNamePrefix: string;
+  dynamicPackageCount: number;
 }
 
 export type CompilationAssets = Record<string, Source>;

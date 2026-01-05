@@ -1,7 +1,5 @@
 ## @taro-minify-pack/plugin-async-pack
-> 异步加载主包代码, 优化主包体积
->
-> 注：异步模块样式文件无法异步加载，已默认在主包样式文件中引入
+> 异步加载主包代码, 优化主包体积（包含异步模块`js`与样式文件）
 
 ### 安装
 
@@ -49,10 +47,10 @@ module.exports = {
     },
     plugins: [
         ['@taro-minify-pack/plugin-async-pack', {
-            // js 异步分包名
-            dynamicModuleJsDir: 'dynamic-common',
-            // 异步模块样式文件名
-            dynamicModuleStyleFile: 'dynamic-common'
+            // 异步分包名前缀
+            dynamicPackageNamePrefix: 'dynamic-common',
+            // 异步分包数量
+            dynamicPackageCount: 2
         }],
     ],
 };
