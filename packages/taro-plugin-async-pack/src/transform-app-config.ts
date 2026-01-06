@@ -31,10 +31,7 @@ export const transformAppConfig = (opts: Opts) => {
     usingComponents: { ...usingComponents, ...asyncComponents },
     componentPlaceholder: { ...componentPlaceholder, ...asyncComponentPlaceholder },
     subPackages: [...finalSubPackages, ...dynamicPackagesConfigs],
-    resolveAlias: {
-      ...resolveAlias,
-      '~/*': '/*'
-    }
+    resolveAlias: { ...resolveAlias, '~/*': '/*' }
   }
 
   assets[appConfigAssetKey] = new RawSource(JSON.stringify(finalAppConfig))

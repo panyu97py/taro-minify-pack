@@ -1,7 +1,7 @@
 import { NodePath, template } from '@babel/core'
 import generator from '@babel/generator'
 import * as parser from '@babel/parser'
-import traverse, { Node } from '@babel/traverse'
+import traverse from '@babel/traverse'
 import * as types from '@babel/types'
 import type { AssignmentExpression, VariableDeclarator } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
@@ -91,7 +91,7 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   const loadDynamicModuleFnMapCode = (() => {
     const dynamicAssetsRequireTempCode = dynamicJsAssets.map((dynamicJsAsset) => {
-      return `'/${dynamicJsAsset}':function (){ return require.async('/${dynamicJsAsset}'); }`
+      return `'/${dynamicJsAsset}':function (){ return require.async('~/${dynamicJsAsset}'); }`
     })
 
     return `var loadDynamicModuleFnMap = {${dynamicAssetsRequireTempCode.join(',')}}`
