@@ -18,7 +18,7 @@ export const pathTransform = (opt: Opt) => {
       if (matchPathAlias) return path.replace(pathAliasRegMap[matchPathAlias], opt.pathAlias[matchPathAlias])
       return path
     })()
-    if (!remoteAssetInfoMap[localPath]) return localPath
+    if (!remoteAssetInfoMap[localPath]) return path
     return remoteAssetInfoMap[localPath]
   }
 }
