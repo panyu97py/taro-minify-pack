@@ -3,7 +3,14 @@ import generator from '@babel/generator'
 import * as parser from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as types from '@babel/types'
-import type { AssignmentExpression, Statement, VariableDeclarator } from '@babel/types'
+import type {
+  AssignmentExpression,
+  ObjectMethod,
+  ObjectProperty,
+  SpreadElement,
+  Statement,
+  VariableDeclarator
+} from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
 import { isDynamicPackageJsAsset, isDynamicPackageWXssAsset } from './utils'
 
@@ -111,9 +118,12 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
   assignmentExpressionNodePath.insertBefore(templateCodeDepAst)
 }
 
-const webpackLoadDynamicModuleStylesheetTemplate = `
+const webpackLoadDynamicStylesheetTemplate = `
   __webpack_require__.f.miniCss = function (dynamicStylesheetChunkId, promises) {
-    promises.push(loadStylesheet(dynamicStylesheetChunkId))
+    var cssChunks = CSS_CHUNKS;
+    if(installedCssChunks[dynamicStylesheetChunkId] !== 0 && cssChunks[dynamicStylesheetChunkId]){
+      promises.push(loadStylesheet(dynamicStylesheetChunkId))
+    }
   }
 `
 
@@ -140,7 +150,20 @@ const replaceWebpackLoadDynamicModuleStylesheetFn = (
 
   if (isProcessed) return
 
-  const templateCodeAst = template.expression(webpackLoadDynamicModuleStylesheetTemplate)()
+  const cssChunksValueAst: Array<ObjectMethod | ObjectProperty | SpreadElement> = []
+
+  assignmentExpressionNodePath.traverse({
+    VariableDeclarator: (nodePath: NodePath<VariableDeclarator>) => {
+      const { id, init } = nodePath.node || {}
+      if (!types.isIdentifier(id, { name: 'cssChunks' })) return
+      if (!types.isObjectExpression(init)) return
+      cssChunksValueAst.push(...init.properties)
+    }
+  })
+
+  const CSS_CHUNKS = types.objectExpression(cssChunksValueAst)
+
+  const templateCodeAst = template.statement(webpackLoadDynamicStylesheetTemplate)({ CSS_CHUNKS })
 
   assignmentExpressionNodePath.replaceWith(templateCodeAst)
 }
@@ -185,6 +208,7 @@ export const transformWebpackRuntime = (code: string, opts: Opts) => {
   traverse(ast, {
     AssignmentExpression: (nodePath: NodePath<AssignmentExpression>) => {
       replaceWebpackLoadScriptFn(nodePath, opts)
+      replaceWebpackLoadDynamicModuleStylesheetFn(nodePath)
     },
     VariableDeclarator (nodePath: NodePath<VariableDeclarator>) {
       replaceLoadStylesheetFn(nodePath, opts)
