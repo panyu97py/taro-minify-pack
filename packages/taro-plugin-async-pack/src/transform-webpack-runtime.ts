@@ -3,7 +3,7 @@ import generator from '@babel/generator'
 import * as parser from '@babel/parser'
 import traverse from '@babel/traverse'
 import * as types from '@babel/types'
-import type { AssignmentExpression, VariableDeclarator } from '@babel/types'
+import type { AssignmentExpression, Statement, VariableDeclarator } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
 import { isDynamicPackageJsAsset, isDynamicPackageWXssAsset } from './utils'
 
@@ -37,28 +37,17 @@ const webpackLoadDynamicModuleTemplate = `
       return;
     }
     
-    const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
-    
-    const [,dynamicPackageName] = dynamicModulePath.match(dynamicPackageNameRegex) || [];
-
     const target = { src: dynamicModulePath };
 
     if (loadedDynamicModules[dynamicModulePath]) return done({ type: 'loaded', target });
-    
-    const { SingletonPromise } = require('~/singleton-promise.js');
-    
-    const waitStyle = hasStyleDynamicModuleList.includes(dynamicModulePath)?SingletonPromise.wait(dynamicPackageName):Promise.resolve();
-    
-    waitStyle.then(()=>{
-      promiseRetry(function () {
-        return loadDynamicModule(dynamicModulePath)
-      })
-      .then(function () {
-        return done({ type: 'loaded', target })
-      }).catch(function () {
-        return done({ type:'error', target })
-      });
-    })
+
+    promiseRetry(function () {
+      return loadDynamicModule(dynamicModulePath)
+    }).then(function () {
+      return done({ type: 'loaded', target })
+    }).catch(function () {
+      return done({ type:'error', target })
+    });
   };
 `
 
@@ -105,9 +94,7 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
     return `var hasStyleDynamicModuleList = [${hasStyleDynamicAssetsList.map(item => `'/${item}'`).join(',')}]`
   })()
 
-  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
-
-  const templateCodeAst = template.statement(webpackLoadDynamicModuleTemplate)({ DYNAMIC_PACKAGE_NAME_REGEX })
+  const templateCodeAst = template.ast(webpackLoadDynamicModuleTemplate) as Statement
 
   const loadDynamicModuleFnMapAst = template.ast(loadDynamicModuleFnMapCode)
 
@@ -125,18 +112,59 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 }
 
 const webpackLoadDynamicModuleStylesheetTemplate = `
-loadStylesheet = function () {
-  return Promise.resolve()
+  __webpack_require__.f.miniCss = function (dynamicStylesheetChunkId, promises) {
+    promises.push(loadStylesheet(dynamicStylesheetChunkId))
+  }
+`
+
+const replaceWebpackLoadDynamicModuleStylesheetFn = (
+  assignmentExpressionNodePath: NodePath<AssignmentExpression>
+) => {
+  const { left, right } = assignmentExpressionNodePath.node || {}
+
+  if (!types.isMemberExpression(left)) return
+
+  if (!types.isFunctionExpression(right)) return
+
+  if (!types.isMemberExpression(left.object)) return
+
+  if (!types.isIdentifier(left.object.object, { name: '__webpack_require__' })) return
+
+  if (!types.isIdentifier(left.object.property, { name: 'f' })) return
+
+  if (!types.isIdentifier(left.property, { name: 'miniCss' })) return
+
+  const isProcessed = right.params.some((item) => {
+    return types.isIdentifier(item, { name: 'dynamicStylesheetChunkId' })
+  })
+
+  if (isProcessed) return
+
+  const templateCodeAst = template.expression(webpackLoadDynamicModuleStylesheetTemplate)()
+
+  assignmentExpressionNodePath.replaceWith(templateCodeAst)
+}
+
+const webpackLoadStylesheetTemplate = `
+loadStylesheet = function (chunkId) {
+  const href = __webpack_require__.miniCssF(chunkId);
+  const fullHref = __webpack_require__.p + href;
+  const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
+  const [,dynamicPackageName] = fullHref.match(dynamicPackageNameRegex) || [];
+  const { SingletonPromise } = require('~/singleton-promise.js');
+  return SingletonPromise.wait(dynamicPackageName)
 }
 `
 
-const replaceLoadStylesheetFn = (nodePath: NodePath<VariableDeclarator>) => {
+const replaceLoadStylesheetFn = (nodePath: NodePath<VariableDeclarator>, opts: Opts) => {
   const { id, init } = nodePath.node || {}
   if (!types.isIdentifier(id, { name: 'loadStylesheet' })) return
   if (!types.isFunctionExpression(init)) return
   const isProcessed = !init.params.length
   if (isProcessed) return
-  const templateCodeAst = template.expression(webpackLoadDynamicModuleStylesheetTemplate)()
+  const { dynamicPackageNamePrefix } = opts
+  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
+  const templateCodeAst = template.expression(webpackLoadStylesheetTemplate)({ DYNAMIC_PACKAGE_NAME_REGEX })
   nodePath.replaceWith(templateCodeAst)
 }
 
@@ -159,7 +187,7 @@ export const transformWebpackRuntime = (code: string, opts: Opts) => {
       replaceWebpackLoadScriptFn(nodePath, opts)
     },
     VariableDeclarator (nodePath: NodePath<VariableDeclarator>) {
-      replaceLoadStylesheetFn(nodePath)
+      replaceLoadStylesheetFn(nodePath, opts)
       removeCreateStylesheetFn(nodePath)
       removeFindStylesheetFn(nodePath)
     }
