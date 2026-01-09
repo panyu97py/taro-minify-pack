@@ -2,7 +2,7 @@ import { PluginObj, NodePath, PluginPass } from '@babel/core'
 import * as types from '@babel/types'
 import { CallExpression, ImportDeclaration, Program, VariableDeclarator } from '@babel/types'
 
-const customLazySource = '@taro-minify-pack/react-lazy-wrapper'
+const customLazySource = '@taro-minify-pack/react-lazy-enhanced'
 
 interface State extends PluginPass {
   reactNamespaces: Set<string>;

@@ -1,7 +1,7 @@
 ## @taro-minify-pack/plugin-remote-assets
 > 自动上传资源文件并替换路径
 > 
-> 注：由于 `@tarojs/webpack5-runner` 不支持绝对路径注册 `postcss` 插件注册注册,已向`Taro`官方提交[pullRequest](https://github.com/NervJS/taro/pull/18683),有需要的可以参考[pullRequest](https://github.com/NervJS/taro/pull/18683/files)自行 patch
+> 注：`Taro`版本低于`4.0.10`由于`@tarojs/webpack5-runner`不支持绝对路径注册`postcss`插件注册注册,需要参考[pullRequest](https://github.com/NervJS/taro/pull/18683/files)自行 patch
 
 
 ### 安装

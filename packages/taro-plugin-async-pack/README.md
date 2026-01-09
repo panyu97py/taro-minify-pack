@@ -5,16 +5,16 @@
 
 #### npm 安装
 ```bash
-npm install @taro-minify-pack/plugin-async-pack
+npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 #### yarn 安装
 ```bash
-yarn add @taro-minify-pack/plugin-async-pack
+yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 
 #### pnpm 安装
 ```bash
-pnpm add @taro-minify-pack/plugin-async-pack
+pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 ### 配置
 

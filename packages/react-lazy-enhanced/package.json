@@ -1,5 +1,5 @@
 {
-  "name": "@taro-minify-pack/react-lazy-wrapper",
+  "name": "@taro-minify-pack/react-lazy-enhanced",
   "version": "0.0.5-alpha.0",
   "description": "",
   "module": "dist/index.js",

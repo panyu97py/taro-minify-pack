@@ -11,16 +11,16 @@
 
 #### npm 安装
 ```bash
-npm install @taro-minify-pack/preset
+npm install @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
 ```
 #### yarn 安装
 ```bash
-yarn add @taro-minify-pack/preset
+yarn add @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
 ```
 
 #### pnpm 安装
 ```bash
-pnpm add @taro-minify-pack/preset
+pnpm add @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
 ```
 
 ### 配置
@@ -85,16 +85,16 @@ module.exports = {
 
 #### npm 安装
 ```bash
-npm install @taro-minify-pack/plugin-async-pack
+npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 #### yarn 安装
 ```bash
-yarn add @taro-minify-pack/plugin-async-pack
+yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 
 #### pnpm 安装
 ```bash
-pnpm add @taro-minify-pack/plugin-async-pack
+pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 ### 配置
 
