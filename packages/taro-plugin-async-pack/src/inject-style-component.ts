@@ -11,7 +11,12 @@ export const InjectStyleComponentName = 'inject-style'
 
 const injectStyleComponentCode = `
 const { SingletonPromise } = require('~/singleton-promise.js')
-Component({ lifetimes: { attached: () => SingletonPromise.resolve("DYNAMIC_PACKAGE_NAME") } })
+Component({ 
+  lifetimes: { 
+    attached: () => SingletonPromise.loaded("DYNAMIC_PACKAGE_NAME"),
+    detached: () => SingletonPromise.unloaded("DYNAMIC_PACKAGE_NAME")
+  } 
+})
 `
 
 type Opt = AsyncPackOpts

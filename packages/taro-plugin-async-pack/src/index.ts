@@ -65,6 +65,14 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
         return [{ ...options, chunkFilename }]
       })
 
+    chain.module
+      .rule('script')
+      .use('babelLoader')
+      .tap((opts) => {
+        const pluginConfig = path.resolve(__dirname, './transform-react-lazy')
+        return { ...opts, plugins: [pluginConfig, ...(opts.plugins || [])] }
+      })
+
     chain.plugin(TransformBeforeCompressionPluginName).use(TransformBeforeCompressionPlugin, [{
       test: /^(runtime\.js)$/,
       transform: (opt: TransformOpt) => {

@@ -1,8 +1,8 @@
 {
-  "name": "@taro-minify-pack/preset",
+  "name": "@taro-minify-pack/react-lazy-wrapper",
   "version": "0.0.5-alpha.0",
   "description": "",
-  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/panyu97py/taro-minify-pack",
   "publishConfig": {
@@ -17,12 +17,13 @@
   },
   "author": "yu.pan",
   "license": "MIT",
-  "dependencies": {
-    "@taro-minify-pack/plugin-async-pack": "workspace:*",
-    "@taro-minify-pack/plugin-remote-assets": "workspace:*"
+  "peerDependencies": {
+    "react": ">=16"
   },
   "devDependencies": {
     "@types/node": "^18.19.130",
+    "@types/react": "^18.3.27",
+    "@types/webpack-sources": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",
@@ -30,6 +31,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.3",
     "eslint-plugin-promise": "^6.0.0",
+    "react": "^18.3.1",
     "typescript": "^5.8.2"
   }
 }

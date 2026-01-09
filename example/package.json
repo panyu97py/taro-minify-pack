@@ -37,6 +37,7 @@
   "dependencies": {
     "@babel/runtime": "^7.24.4",
     "@taro-minify-pack/preset": "workspace:*",
+    "@taro-minify-pack/react-lazy-wrapper": "workspace:*",
     "@tarojs/components": "4.0.8",
     "@tarojs/helper": "4.0.8",
     "@tarojs/plugin-framework-react": "4.0.8",
