@@ -1,3 +1,4 @@
+import path from 'path'
 import { AsyncPackOpts } from './types'
 
 export const generateKeyByOrder = (order: number) => {
@@ -39,4 +40,8 @@ export const isDynamicPackageWXssAssetWithOrder = (opt: AsyncPackOpts & { order?
 export const generateDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
   if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
   return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
+}
+
+export const normalizeFileName = (fileName: string) => {
+  return path.normalize(fileName).replace(/\\/g, '/')
 }
