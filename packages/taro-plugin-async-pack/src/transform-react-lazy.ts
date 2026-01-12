@@ -1,6 +1,7 @@
 import { PluginObj, NodePath, PluginPass } from '@babel/core'
 import * as types from '@babel/types'
 import { CallExpression, ImportDeclaration, Program, VariableDeclarator } from '@babel/types'
+import { normalizeFileName } from './utils'
 
 const customLazySource = '@taro-minify-pack/react-lazy-enhanced'
 
@@ -16,7 +17,7 @@ export default (): PluginObj<State> => {
         enter (programPath: NodePath<Program>, state: State) {
           const { filename = '' } = state
 
-          if (new RegExp(customLazySource).test(filename)) return
+          if (new RegExp(customLazySource).test(normalizeFileName(filename))) return
 
           state.reactNamespaces = new Set()
 
@@ -85,7 +86,7 @@ export default (): PluginObj<State> => {
         exit (programPath: NodePath<Program>, state: State) {
           const { filename = '' } = state
 
-          if (new RegExp(customLazySource).test(filename)) return
+          if (new RegExp(customLazySource).test(normalizeFileName(filename))) return
 
           let needInject = false
 

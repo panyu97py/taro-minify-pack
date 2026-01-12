@@ -8,7 +8,7 @@
     "clear-all": "rm -rf node_modules && pnpm -r exec rm -rf node_modules",
     "build": "pnpm clear-dist && pnpm --filter @taro-minify-pack/* build",
     "publish": "pnpm --filter @taro-minify-pack/* publish",
-    "release": "lerna version"
+    "version": "lerna version"
   },
   "author": "yu.pan",
   "license": "ISC",
