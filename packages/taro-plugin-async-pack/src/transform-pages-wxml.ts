@@ -13,7 +13,7 @@ export const transformPagesWXml = (opts: Opts) => {
 
   const curAppConfig: AppConfig = JSON.parse(assets[appConfigAssetKey].source() as string)
 
-  const pagesPath = (() => {
+  const pageWXmlPaths = (() => {
     const { pages = [], subpackages, subPackages, tabBar } = curAppConfig
     const tabBarPagePaths = tabBar?.list?.map((item) => item.pagePath) || []
     const curSubPackages = subPackages || subpackages || []
@@ -24,11 +24,11 @@ export const transformPagesWXml = (opts: Opts) => {
     return [...pages, ...tabBarPagePaths, ...subPackagePagePaths].map((item) => `${item}.wxml`)
   })()
 
-  const asyncComponentCode = Object.keys(asyncComponents).map((item) => `<${item}/>`)
-
   Object.keys(assets).forEach((assetPath) => {
-    if (!pagesPath.includes(assetPath)) return
+    if (!pageWXmlPaths.includes(assetPath)) return
     const source = assets[assetPath].source() as string
+    const pageRoute = assetPath.replace(/\.wxml$/, '')
+    const asyncComponentCode = Object.keys(asyncComponents).map((item) => `<${item} route="${pageRoute}"/>`)
     const tempCode = [source, ...asyncComponentCode].join('\n')
     assets[assetPath] = new RawSource(tempCode)
   })

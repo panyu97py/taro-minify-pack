@@ -12,9 +12,16 @@ export const InjectStyleComponentName = 'inject-style'
 const injectStyleComponentCode = `
 const { SingletonPromise } = require('~/singleton-promise.js')
 Component({ 
+  properties: {
+    route: String,
+  },
   lifetimes: { 
-    attached: () => SingletonPromise.loaded("DYNAMIC_PACKAGE_NAME"),
-    detached: () => SingletonPromise.unloaded("DYNAMIC_PACKAGE_NAME")
+    attached: function () {
+      return SingletonPromise.loaded({dynamicPackageName:"DYNAMIC_PACKAGE_NAME",pageRoute:this.data.route})
+    },
+    detached: function () {
+      return SingletonPromise.unloaded({dynamicPackageName:"DYNAMIC_PACKAGE_NAME",pageRoute:this.data.route})
+    }
   } 
 })
 `
