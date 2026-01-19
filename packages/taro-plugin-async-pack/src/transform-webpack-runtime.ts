@@ -175,7 +175,7 @@ loadStylesheet = function (chunkId) {
   const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
   const [,dynamicPackageName] = fullHref.match(dynamicPackageNameRegex) || [];
   const { SingletonPromise } = require('~/singleton-promise.js');
-  return SingletonPromise.wait(dynamicPackageName)
+  return SingletonPromise.wait({ dynamicPackageName })
 }
 `
 
