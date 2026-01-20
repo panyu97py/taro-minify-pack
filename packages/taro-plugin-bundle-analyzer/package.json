@@ -1,5 +1,5 @@
 {
-  "name": "@taro-minify-pack/preset",
+  "name": "@taro-minify-pack/plugin-bundle-analyzer",
   "version": "0.0.5-alpha.4",
   "description": "",
   "main": "dist/index.js",
@@ -18,13 +18,11 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "@taro-minify-pack/plugin-async-pack": "workspace:*",
-    "@taro-minify-pack/plugin-remote-assets": "workspace:*",
-    "@taro-minify-pack/plugin-cover-browserslist": "workspace:*",
-    "@taro-minify-pack/plugin-bundle-analyzer": "workspace:*"
+    "webpack-bundle-analyzer": "^5.1.1"
   },
   "devDependencies": {
-    "@types/node": "^18.19.130",
+    "@tarojs/service": "^4.0.8",
+    "@types/webpack-bundle-analyzer": "^4.7.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",
