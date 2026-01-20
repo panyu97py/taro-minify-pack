@@ -5,7 +5,6 @@
 
 > 适用于：Taro + React + Webpack5
 
----
 
 ## ✨ Features
 
@@ -14,7 +13,6 @@
 - 🧩 提供开箱即用的 preset，零成本接入完整优化方案
 - 🔌 各插件可独立使用，按需组合，无强依赖耦合
 
----
 
 ## 📦 Packages
 
@@ -24,7 +22,7 @@
 | [`@taro-minify-pack/plugin-async-pack`](./packages/taro-plugin-async-pack/README.md)       | 主包公共代码与样式的异步拆分加载 |
 | [`@taro-minify-pack/plugin-remote-assets`](./packages/taro-plugin-remote-assets/README.md) | 静态资源自动上传并替换路径 |
 | [`@taro-minify-pack/react-lazy-enhanced`](./packages/react-lazy-enhanced/README.md)   | React 懒加载增强，解决异步样式不同步问题 |
----
+
 
 ## 📁 Repository Structure
 
