@@ -1,5 +1,5 @@
 {
-  "name": "@taro-minify-pack/preset",
+  "name": "@taro-minify-pack/plugin-cover-browserslist",
   "version": "0.0.5-alpha.4",
   "description": "",
   "main": "dist/index.js",
@@ -18,12 +18,10 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "@taro-minify-pack/plugin-async-pack": "workspace:*",
-    "@taro-minify-pack/plugin-remote-assets": "workspace:*",
-    "@taro-minify-pack/plugin-cover-browserslist": "workspace:*"
+    "miniprogram-compat": "^1.0.5"
   },
   "devDependencies": {
-    "@types/node": "^18.19.130",
+    "@tarojs/service": "^4.0.8",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",
