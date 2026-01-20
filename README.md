@@ -18,12 +18,12 @@
 
 ## 📦 Packages
 
-| Package | Description |
-|--------|------------|
-| [`@taro-minify-pack/preset`](./packages/preset/README.md) | 预设方案（async-pack + remote-assets） |
-| [`@taro-minify-pack/plugin-async-pack`](./packages/plugin-async-pack/README.md) | 主包公共代码与样式的异步拆分加载 |
-| [`@taro-minify-pack/plugin-remote-assets`](./packages/plugin-remote-assets/README.md) | 静态资源自动上传并替换路径 |
-| [`@taro-minify-pack/react-lazy-enhanced`](./packages/react-lazy-enhanced/README.md) | React 懒加载增强，解决异步样式不同步问题 |
+| Package                                                                               | Description |
+|---------------------------------------------------------------------------------------|------------|
+| [`@taro-minify-pack/preset`](./packages/taro-preset/README.md)                        | 预设方案（async-pack + remote-assets） |
+| [`@taro-minify-pack/plugin-async-pack`](./packages/taro-plugin-async-pack/README.md)       | 主包公共代码与样式的异步拆分加载 |
+| [`@taro-minify-pack/plugin-remote-assets`](./packages/taro-plugin-remote-assets/README.md) | 静态资源自动上传并替换路径 |
+| [`@taro-minify-pack/react-lazy-enhanced`](./packages/react-lazy-enhanced/README.md)   | React 懒加载增强，解决异步样式不同步问题 |
 ---
 
 ## 📁 Repository Structure
