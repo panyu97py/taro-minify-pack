@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/preset",
-  "version": "0.0.5-alpha.4",
+  "version": "0.0.5-alpha.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,9 +19,9 @@
   "license": "MIT",
   "dependencies": {
     "@taro-minify-pack/plugin-async-pack": "workspace:*",
-    "@taro-minify-pack/plugin-remote-assets": "workspace:*",
+    "@taro-minify-pack/plugin-bundle-analyzer": "workspace:*",
     "@taro-minify-pack/plugin-cover-browserslist": "workspace:*",
-    "@taro-minify-pack/plugin-bundle-analyzer": "workspace:*"
+    "@taro-minify-pack/plugin-remote-assets": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.19.130",

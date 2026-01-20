@@ -448,9 +448,6 @@ importers:
       '@types/node':
         specifier: ^18.19.130
         version: 18.19.130
-      '@types/webpack-bundle-analyzer':
-        specifier: ^4.7.0
-        version: 4.7.0(@swc/core@1.3.96)
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.26.1
         version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
