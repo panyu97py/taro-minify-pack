@@ -1,12 +1,13 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
-  "version": "0.0.5-alpha.4",
+  "version": "0.0.5-alpha.5",
   "npmClient": "pnpm",
   "packages": [
     "packages/*"
   ],
   "command": {
     "version": {
+      "message": "chore(release): publish %v",
       "forcePublish": true
     }
   }

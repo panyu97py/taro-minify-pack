@@ -1,8 +1,8 @@
 {
-  "name": "@taro-minify-pack/react-lazy-enhanced",
+  "name": "@taro-minify-pack/plugin-bundle-analyzer",
   "version": "0.0.5-alpha.5",
   "description": "",
-  "module": "dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/panyu97py/taro-minify-pack",
   "publishConfig": {
@@ -17,13 +17,12 @@
   },
   "author": "yu.pan",
   "license": "MIT",
-  "peerDependencies": {
-    "react": ">=16"
+  "dependencies": {
+    "webpack-bundle-analyzer": "^5.1.1"
   },
   "devDependencies": {
-    "@types/node": "^18.19.130",
-    "@types/react": "^18.3.27",
-    "@types/webpack-sources": "^3.2.3",
+    "@tarojs/service": "^4.0.8",
+    "@types/webpack-bundle-analyzer": "^4.7.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",
@@ -31,7 +30,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.3",
     "eslint-plugin-promise": "^6.0.0",
-    "react": "^18.3.1",
     "typescript": "^5.8.2"
   }
 }
