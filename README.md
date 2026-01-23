@@ -40,3 +40,33 @@
 │   ├── taro-plugin-cover-browserslist  # browserslist 覆盖插件
 │   └── react-lazy-enhanced/            # React 懒加载增强
 └── README.md
+```
+## ❤️ 支持项目 / Sponsor
+
+如果 Taro Minify Pack 在你的项目中帮你： 
+* 成功压缩了主包体积 📦
+* 节省了排查体积问题的时间 ⏱️
+
+欢迎通过打赏的方式支持项目持续维护与迭代 🙏
+
+你的支持将用于： 
+* 新版本 Taro / 基础库适配
+* 性能优化与稳定性改进
+* 文档、示例与最佳实践完善
+
+开源不易，感谢你的认可 ❤️
+
+### ☕️ 请作者喝杯咖啡
+
+如果这个项目对你有帮助，可以请作者喝杯咖啡 ☕
+每一份支持，都会转化为更稳定、更好用的优化方案。
+
+<img src="./assets/wechat-pay-code.JPG" height="200" />
+<img src="./assets/alipay-pay-code.JPG" height="200" />
+
+### 🌟 其他支持方式
+* 给仓库点一个 ⭐️
+* 在 issue / discussion 分享你的使用反馈
+* 在团队或社区中推荐本项目
+
+这些都会对项目非常有帮助 🙌
