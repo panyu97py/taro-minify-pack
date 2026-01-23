@@ -61,8 +61,6 @@
 如果这个项目对你有帮助，可以请作者喝杯咖啡 ☕
 每一份支持，都会转化为更稳定、更好用的优化方案。
 
-## ❤️ 支持项目
-
 | 微信 | 支付宝 |
 |:---:|:---:|
 | <img src="./assets/wechat-pay-code.JPG" height="200" /> | <img src="./assets/alipay-pay-code.JPG" height="200" /> |
