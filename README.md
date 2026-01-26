@@ -1,7 +1,7 @@
 <div align="center">
   <h1>Taro Minify Pack</h1>
   <p> 一组面向 <strong>Taro（Webpack5）小程序</strong> 的主包体积优化插件与预设方案。</p>
-  <p> 通过 <strong>分包异步加载</strong>、<strong>静态资源远程化</strong> 与 <strong>减少兼容代码编译输出</strong>，有效降低主包体积。(适用于：Taro + React + Webpack5)</p>
+  <p> 通过 <strong>分包异步加载</strong>、<strong>静态资源远程化</strong> 与 <strong>减少兼容代码编译输出</strong>，降低主包体积。(适用于：Taro + React + Webpack5)</p>
   <a href="https://www.npmjs.com/package/@taro-minify-pack/preset">
     <img src="https://img.shields.io/npm/v/@taro-minify-pack/preset.svg?style=flat-square">
   </a>
