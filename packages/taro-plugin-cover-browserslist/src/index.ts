@@ -2,7 +2,7 @@ import { getBrowsersList } from 'miniprogram-compat'
 import type { IPluginContext } from '@tarojs/service'
 
 export interface CoverBrowsersListOpt {
-    minBaseLibraryVersion: string
+    minBaseLibraryVersion?: string
 }
 
 export default (ctx: IPluginContext, pluginOpts:CoverBrowsersListOpt) => {
@@ -13,8 +13,6 @@ export default (ctx: IPluginContext, pluginOpts:CoverBrowsersListOpt) => {
 
     if (!browsersList) return
 
-    process.env.BROWSERSLIST = browsersList?.join(',')
-
-    console.log('✅ Successfully set BROWSERSLIST from minBaseLibraryVersion')
+    process.env.BROWSERSLIST = browsersList.join(',')
   })
 }
