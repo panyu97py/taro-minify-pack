@@ -1,10 +1,20 @@
-# Taro Minify Pack
-
-一组面向 **Taro（Webpack5）小程序** 的主包体积优化插件与预设方案。  
-通过 **分包异步加载**、**静态资源远程化** 与 **减少兼容代码编译输出**，  
-有效降低主包体积并提升首包加载成功率。
-
-> 适用于：Taro + React + Webpack5
+<div align="center">
+  <h1>Taro Minify Pack</h1>
+  <p> 一组面向 <strong>Taro（Webpack5）小程序</strong> 的主包体积优化插件与预设方案。</p>
+  <p> 通过 <strong>分包异步加载</strong>、<strong>静态资源远程化</strong> 与 <strong>减少兼容代码编译输出</strong>，有效降低主包体积并提升首包加载成功率。(适用于：Taro + React + Webpack5)</p>
+  <a href="https://www.npmjs.com/package/@taro-minify-pack/preset">
+    <img src="https://img.shields.io/npm/v/@taro-minify-pack/preset.svg?style=flat-square">
+  </a>
+  <a href="https://www.npmjs.com/package/@taro-minify-pack/preset">
+    <img src="https://img.shields.io/npm/l/@taro-minify-pack/preset.svg?style=flat-square">
+  </a>
+  <a href="https://www.npmjs.com/package/@taro-minify-pack/preset">
+    <img src="https://img.shields.io/npm/dt/@taro-minify-pack/preset.svg?style=flat-square">
+  </a>
+  <a href="https://github.com/panyu97py/taro-minify-pack">
+    <img src="https://img.shields.io/github/commit-activity/w/panyu97py/taro-minify-pack" alt="GitHub commit activity">
+  </a>
+</div>
 
 ## ✨ Features
 
