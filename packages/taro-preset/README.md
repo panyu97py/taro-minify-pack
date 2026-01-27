@@ -60,7 +60,7 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
+const { aliOssUploadAdapter } = require('@taro-minify-pack/preset')
 
 module.exports = {
     compiler: {
@@ -222,6 +222,9 @@ module.exports = {
 
 6. **Webpack 版本**：该预设仅支持 Webpack 5 编译器，请确保 Taro 项目使用 `compiler.type = 'webpack5'`。
 
+7. **remote-assets 插件版本兼容性**：
+    - **Taro < 4.0.10**：由于 `@tarojs/webpack5-runner` 不支持使用绝对路径注册 PostCSS 插件，在低版本 Taro 中直接使用本插件可能会导致插件无法生效。如需在低版本中使用，请参考官方 Pull Request( `https://github.com/NervJS/taro/pull/18683/files` ) 自行 patch。
+    - **Taro ≥ 4.0.10**：可直接使用，无需额外处理。
 ## 📄 许可证
 
 MIT License
