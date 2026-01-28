@@ -5,7 +5,7 @@ import { uploadAssets } from './upload-assets'
 import { getCacheData, saveCacheData } from './utils'
 import { pathTransform } from '@/path-transform/path-transform'
 
-export { RemoteAssetPluginOpt } from '@/types'
+export * from '@/types'
 
 export * from './upload-adapter'
 
