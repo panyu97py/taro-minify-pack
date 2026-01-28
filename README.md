@@ -86,6 +86,8 @@
 
 * 给仓库点一个 ⭐️
 * 在 issue / discussion 分享你的使用反馈
-* 在团队或社区中推荐本项目
+* 在团队或社区中推荐本项目(辛苦帮忙推荐下，看能不能进 Taro 官方插件列表)
+  * https://github.com/NervJS/taro/discussions/18715
+  * https://github.com/NervJS/taro/issues/18817
 
 这些都会对项目非常有帮助 🙌
