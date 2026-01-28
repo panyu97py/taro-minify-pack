@@ -27,28 +27,30 @@
 
 ## 📦 Packages
 
-| Package                                                                                                           | Description                                                                    |
-|-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| <nobr>[`@taro-minify-pack/preset`](./packages/taro-preset/README.md)</nobr>                                       | 预设方案，集成 `async-pack`、`remote-assets`、`cover-browserslist`、`bundle-analyzer` 能力 |
-| <nobr>[`@taro-minify-pack/plugin-bundle-analyzer`](./packages/taro-plugin-bundle-analyzer/README.md)</nobr>       | 调用`webpack-bundle-analyzer` 实现包体积分析能力                                          |
-| <nobr>[`@taro-minify-pack/plugin-async-pack`](./packages/taro-plugin-async-pack/README.md)</nobr>                 | 主包公共代码与样式的异步拆分加载                                                               |
-| <nobr>[`@taro-minify-pack/plugin-remote-assets`](./packages/taro-plugin-remote-assets/README.md)</nobr>           | 静态资源自动上传并替换路径                                                                  |
-| <nobr>[`@taro-minify-pack/plugin-cover-browserslist`](./packages/taro-plugin-cover-browserslist/README.md)</nobr> | 基于小程序基础库版本生成并覆盖 browserslist                                                   |
-| <nobr>[`@taro-minify-pack/react-lazy-enhanced`](./packages/react-lazy-enhanced/README.md)</nobr>                  | React 懒加载增强，解决异步组件样式不同步问题                                                      |
+| Package                                                                                              | Description                                                                    |
+|------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`@taro-minify-pack/preset`](./packages/taro-preset/README.md)                                       | 预设方案，集成 `async-pack`、`remote-assets`、`cover-browserslist`、`bundle-analyzer` 能力 |
+| [`@taro-minify-pack/plugin-bundle-analyzer`](./packages/taro-plugin-bundle-analyzer/README.md)       | 调用`webpack-bundle-analyzer` 实现包体积分析能力                                          |
+| [`@taro-minify-pack/plugin-async-pack`](./packages/taro-plugin-async-pack/README.md)                 | 主包公共代码与样式的异步拆分加载                                                               |
+| [`@taro-minify-pack/plugin-remote-assets`](./packages/taro-plugin-remote-assets/README.md)           | 静态资源自动上传并替换路径                                                                  |
+| [`@taro-minify-pack/plugin-cover-browserslist`](./packages/taro-plugin-cover-browserslist/README.md) | 基于小程序基础库版本生成并覆盖 browserslist                                                   |
+| [`@taro-minify-pack/react-lazy-enhanced`](./packages/lazy-enhanced-react/README.md)                  | React 懒加载增强，解决异步组件样式不同步问题                                                      |
+| [`@taro-minify-pack/vue-lazy-enhanced`](./packages/lazy-enhanced-vue/README.md)                      | Vue 懒加载增强，解决异步组件样式不同步问题                                                        |
 
 ## 📁 Repository Structure
 
 ```text
 .
 ├── examples/
-│   └── taro-react-demo/                # 示例项目
+│   └── taro-react-demo/                    # 示例项目
 ├── packages/
-│   ├── taro-preset/                    # 预设方案
-│   ├── taro-plugin-bundle-analyzer/    # 包体积分析插件
-│   ├── taro-plugin-async-pack/         # 主包异步拆分插件
-│   ├── taro-plugin-remote-assets/      # 远程资源插件
-│   ├── taro-plugin-cover-browserslist  # browserslist 覆盖插件
-│   └── react-lazy-enhanced/            # React 懒加载增强
+│   ├── taro-preset/                        # 预设方案
+│   ├── taro-plugin-bundle-analyzer/        # 包体积分析插件
+│   ├── taro-plugin-async-pack/             # 主包异步拆分插件
+│   ├── taro-plugin-remote-assets/          # 远程资源插件
+│   ├── taro-plugin-cover-browserslist/     # browserslist 覆盖插件
+│   ├── lazy-enhanced-vue/                  # Vue 懒加载增强
+│   └── lazy-enhanced-react/                # React 懒加载增强
 └── README.md
 ```
 
