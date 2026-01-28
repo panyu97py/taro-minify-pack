@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/react-lazy-enhanced",
-  "version": "0.0.5-alpha.6",
+  "version": "0.0.5-alpha.7",
   "description": "",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
