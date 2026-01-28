@@ -8,11 +8,11 @@ import type {
   ObjectMethod,
   ObjectProperty,
   SpreadElement,
-  Statement,
+  Statement, UnaryExpression,
   VariableDeclarator
 } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
-import { isDynamicPackageJsAsset, isDynamicPackageWXssAsset } from './utils'
+import { isDynamicPackageJsAsset } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: CompilationAssets;
@@ -81,10 +81,6 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
     return isDynamicPackageJsAsset(dynamicPackageNamePrefix, assetName)
   })
 
-  const dynamicWXssAssets = Object.keys(assets).filter((assetName) => {
-    return isDynamicPackageWXssAsset(dynamicPackageNamePrefix, assetName)
-  })
-
   const loadDynamicModuleFnMapCode = (() => {
     const dynamicAssetsRequireTempCode = dynamicJsAssets.map((dynamicJsAsset) => {
       return `'/${dynamicJsAsset}':function (){ return require.async('~/${dynamicJsAsset}'); }`
@@ -93,19 +89,9 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
     return `var loadDynamicModuleFnMap = {${dynamicAssetsRequireTempCode.join(',')}}`
   })()
 
-  const hasStyleDynamicAssetsListCode = (() => {
-    const hasStyleDynamicAssetsList = dynamicJsAssets.filter((dynamicJsAsset) => {
-      const matchWXssAssets = dynamicJsAsset.replace(/\.js$/, '.wxss')
-      return dynamicWXssAssets.includes(matchWXssAssets)
-    })
-    return `var hasStyleDynamicModuleList = [${hasStyleDynamicAssetsList.map(item => `'/${item}'`).join(',')}]`
-  })()
-
   const templateCodeAst = template.ast(webpackLoadDynamicModuleTemplate) as Statement
 
   const loadDynamicModuleFnMapAst = template.ast(loadDynamicModuleFnMapCode)
-
-  const hasStyleDynamicAssetsListAst = template.ast(hasStyleDynamicAssetsListCode)
 
   const templateCodeDepAst = template.ast(webpackLoadDynamicModuleTemplateDep)
 
@@ -113,82 +99,80 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   assignmentExpressionNodePath.insertBefore(loadDynamicModuleFnMapAst)
 
-  assignmentExpressionNodePath.insertBefore(hasStyleDynamicAssetsListAst)
-
   assignmentExpressionNodePath.insertBefore(templateCodeDepAst)
 }
 
 const webpackLoadDynamicStylesheetTemplate = `
-  __webpack_require__.f.miniCss = function (dynamicStylesheetChunkId, promises) {
-    var cssChunks = CSS_CHUNKS;
-    if(installedCssChunks[dynamicStylesheetChunkId] !== 0 && cssChunks[dynamicStylesheetChunkId]){
-      promises.push(loadStylesheet(dynamicStylesheetChunkId))
+  !function () {
+    var loadStylesheet = function (chunkId) {
+      const href = __webpack_require__.miniCssF(chunkId);
+      const fullHref = __webpack_require__.p + href;
+      const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
+      const [,dynamicPackageName] = fullHref.match(dynamicPackageNameRegex) || [];
+      const { SingletonPromise } = require('~/singleton-promise.js');
+      return SingletonPromise.wait({ dynamicPackageName })
     }
-  }
+    var installedCssChunks = INSTALLED_CSS_CHUNKS;
+    __webpack_require__.f.miniCss = function (dynamicStylesheetChunkId, promises) {
+      var cssChunks = CSS_CHUNKS;
+      if (installedCssChunks[dynamicStylesheetChunkId] !== 0 && cssChunks[dynamicStylesheetChunkId]) {
+        promises.push(loadStylesheet(dynamicStylesheetChunkId));
+      }
+    };
+  }();
 `
 
-const replaceWebpackLoadDynamicModuleStylesheetFn = (
-  assignmentExpressionNodePath: NodePath<AssignmentExpression>
-) => {
-  const { left, right } = assignmentExpressionNodePath.node || {}
+const replaceWebpackLoadDynamicModuleStylesheetFn = (path: NodePath<UnaryExpression>, opts: Opts) => {
+  let needProcessed = false
 
-  if (!types.isMemberExpression(left)) return
+  path.traverse({
+    AssignmentExpression: (nodePath: NodePath<AssignmentExpression>) => {
+      const { left, right } = nodePath.node || {}
 
-  if (!types.isFunctionExpression(right)) return
+      if (!types.isMemberExpression(left)) return
 
-  if (!types.isMemberExpression(left.object)) return
+      if (!types.isFunctionExpression(right)) return
 
-  if (!types.isIdentifier(left.object.object, { name: '__webpack_require__' })) return
+      if (!types.isMemberExpression(left.object)) return
 
-  if (!types.isIdentifier(left.object.property, { name: 'f' })) return
+      if (!types.isIdentifier(left.object.object, { name: '__webpack_require__' })) return
 
-  if (!types.isIdentifier(left.property, { name: 'miniCss' })) return
+      if (!types.isIdentifier(left.object.property, { name: 'f' })) return
 
-  const isProcessed = right.params.some((item) => {
-    return types.isIdentifier(item, { name: 'dynamicStylesheetChunkId' })
+      if (!types.isIdentifier(left.property, { name: 'miniCss' })) return
+
+      if (right.params.some((item) => types.isIdentifier(item, { name: 'dynamicStylesheetChunkId' }))) return
+
+      needProcessed = true
+    }
   })
 
-  if (isProcessed) return
+  if (!needProcessed) return
+
+  const installedCssChunksValueAst : Array<ObjectMethod | ObjectProperty | SpreadElement> = []
 
   const cssChunksValueAst: Array<ObjectMethod | ObjectProperty | SpreadElement> = []
 
-  assignmentExpressionNodePath.traverse({
+  path.traverse({
     VariableDeclarator: (nodePath: NodePath<VariableDeclarator>) => {
       const { id, init } = nodePath.node || {}
-      if (!types.isIdentifier(id, { name: 'cssChunks' })) return
       if (!types.isObjectExpression(init)) return
-      cssChunksValueAst.push(...init.properties)
+      if (types.isIdentifier(id, { name: 'cssChunks' })) cssChunksValueAst.push(...init.properties)
+      if (types.isIdentifier(id, { name: 'installedCssChunks' })) installedCssChunksValueAst.push(...init.properties)
     }
   })
 
+  const { dynamicPackageNamePrefix } = opts
+
+  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
+
+  const INSTALLED_CSS_CHUNKS = types.objectExpression(installedCssChunksValueAst)
+
   const CSS_CHUNKS = types.objectExpression(cssChunksValueAst)
 
-  const templateCodeAst = template.statement(webpackLoadDynamicStylesheetTemplate)({ CSS_CHUNKS })
+  const templateCodeAst = template.statement(webpackLoadDynamicStylesheetTemplate)({ CSS_CHUNKS, DYNAMIC_PACKAGE_NAME_REGEX, INSTALLED_CSS_CHUNKS })
 
-  assignmentExpressionNodePath.replaceWith(templateCodeAst)
-}
-
-const webpackLoadStylesheetTemplate = `
-loadStylesheet = function (chunkId) {
-  const href = __webpack_require__.miniCssF(chunkId);
-  const fullHref = __webpack_require__.p + href;
-  const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
-  const [,dynamicPackageName] = fullHref.match(dynamicPackageNameRegex) || [];
-  const { SingletonPromise } = require('~/singleton-promise.js');
-  return SingletonPromise.wait({ dynamicPackageName })
-}
-`
-
-const replaceLoadStylesheetFn = (nodePath: NodePath<VariableDeclarator>, opts: Opts) => {
-  const { id, init } = nodePath.node || {}
-  if (!types.isIdentifier(id, { name: 'loadStylesheet' })) return
-  if (!types.isFunctionExpression(init)) return
-  const isProcessed = !init.params.length
-  if (isProcessed) return
-  const { dynamicPackageNamePrefix } = opts
-  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
-  const templateCodeAst = template.expression(webpackLoadStylesheetTemplate)({ DYNAMIC_PACKAGE_NAME_REGEX })
-  nodePath.replaceWith(templateCodeAst)
+  path.parentPath.replaceWith(templateCodeAst)
 }
 
 const removeCreateStylesheetFn = (nodePath: NodePath<VariableDeclarator>) => {
@@ -206,12 +190,13 @@ const removeFindStylesheetFn = (nodePath: NodePath<VariableDeclarator>) => {
 export const transformWebpackRuntime = (code: string, opts: Opts) => {
   const ast = parser.parse(code) // 将代码解析为 AST
   traverse(ast, {
+    UnaryExpression: (nodePath: NodePath<UnaryExpression>) => {
+      replaceWebpackLoadDynamicModuleStylesheetFn(nodePath, opts)
+    },
     AssignmentExpression: (nodePath: NodePath<AssignmentExpression>) => {
       replaceWebpackLoadScriptFn(nodePath, opts)
-      replaceWebpackLoadDynamicModuleStylesheetFn(nodePath)
     },
     VariableDeclarator (nodePath: NodePath<VariableDeclarator>) {
-      replaceLoadStylesheetFn(nodePath, opts)
       removeCreateStylesheetFn(nodePath)
       removeFindStylesheetFn(nodePath)
     }

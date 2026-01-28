@@ -1,6 +1,6 @@
 packages:
   - packages/*
-  - example
+  - example/*
 
 patchedDependencies:
   '@tarojs/webpack5-runner': patches/@tarojs__webpack5-runner.patch

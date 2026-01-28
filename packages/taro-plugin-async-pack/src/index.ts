@@ -14,6 +14,7 @@ import { AsyncPackOpts } from './types'
 export { AsyncPackOpts } from './types'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
+  framework: 'react',
   dynamicPackageNamePrefix: 'dynamic-common',
   dynamicPackageCount: 1
 }
@@ -69,8 +70,21 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
       .rule('script')
       .use('babelLoader')
       .tap((opts) => {
-        const pluginConfig = path.resolve(__dirname, './transform-react-lazy')
-        return { ...opts, plugins: [pluginConfig, ...(opts.plugins || [])] }
+        const plugin = path.resolve(__dirname, './transform-specifier-with-source')
+
+        if (finalOpts.framework === 'react') {
+          const original = { source: 'react', specifier: 'lazy' }
+          const transformed = { source: '@taro-minify-pack/react-lazy-enhanced', specifier: 'lazyEnhanced' }
+          return { ...opts, plugins: [[plugin, { original, transformed }], ...(opts.plugins || [])] }
+        }
+
+        if (finalOpts.framework === 'vue') {
+          const original = { source: 'vue', specifier: 'defineAsyncComponent' }
+          const transformed = { source: '@taro-minify-pack/vue-lazy-enhanced', specifier: 'defineAsyncComponentEnhanced' }
+          return { ...opts, plugins: [[plugin, { original, transformed }], ...(opts.plugins || [])] }
+        }
+
+        return opts
       })
 
     chain.plugin(TransformBeforeCompressionPluginName).use(TransformBeforeCompressionPlugin, [{

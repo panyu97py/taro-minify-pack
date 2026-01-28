@@ -1,8 +1,8 @@
 {
-  "name": "@taro-minify-pack/plugin-cover-browserslist",
+  "name": "@taro-minify-pack/react-lazy-enhanced",
   "version": "0.0.5-alpha.7",
   "description": "",
-  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/panyu97py/taro-minify-pack",
   "publishConfig": {
@@ -17,11 +17,11 @@
   },
   "author": "yu.pan",
   "license": "MIT",
-  "dependencies": {
-    "miniprogram-compat": "^1.0.5"
+  "peerDependencies": {
+    "react": ">=16"
   },
   "devDependencies": {
-    "@tarojs/service": "^4.0.8",
+    "@types/react": "^18.3.27",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",

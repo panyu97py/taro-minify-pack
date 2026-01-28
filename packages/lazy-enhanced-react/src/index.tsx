@@ -25,7 +25,7 @@ interface LoadData<T> {
 
 type Factory<T extends ComponentType<any>> = () => Promise<Result<T>>;
 
-export const lazy = <T extends ComponentType<any>>(factory: Factory<T>) => {
+export const lazyEnhanced = <T extends ComponentType<any>>(factory: Factory<T>) => {
   const LazyComponent = React.lazy(factory) as ForwardRefExoticComponent<any>
   const loadData: LoadData<T> = { status: Status.Uninitialized }
 

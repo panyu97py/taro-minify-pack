@@ -13,7 +13,11 @@
 
 ## 📦 安装
 
-### npm 安装
+### 必需依赖安装
+使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced`或 `@taro-minify-pack/vue-lazy-enhanced` 包以支持异步组件样式加载：
+
+#### react
+##### npm 安装
 ```bash
 npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
@@ -26,6 +30,23 @@ yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanc
 ### pnpm 安装
 ```bash
 pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
+```
+
+#### vue
+
+##### npm 安装
+```bash
+npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
+```
+
+### yarn 安装
+```bash
+yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
+```
+
+### pnpm 安装
+```bash
+pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
 ```
 
 ## ⚙️ 配置
@@ -60,6 +81,8 @@ module.exports = {
     },
     plugins: [
         ['@taro-minify-pack/plugin-async-pack', {
+            // 框架类型，可选 'react' 或 'vue'
+            framework: 'react',
             // 异步分包名前缀，默认为 'dynamic-common'
             dynamicPackageNamePrefix: 'dynamic-common',
             // 异步分包数量，默认为 1
@@ -91,6 +114,28 @@ function App() {
     </Suspense>
   )
 }
+```
+
+### Vue 组件懒加载
+```vue
+<template>
+  <view class="index">
+    <Suspense>
+      <template #default>
+         <AsyncComponent/>
+      </template>
+      <template #fallback>
+        <view>loading...</view>
+      </template>
+    </Suspense>
+  </view>
+</template>
+
+<script setup>
+import {defineAsyncComponent, ref} from 'vue'
+const AsyncComponent = defineAsyncComponent(() => import('./async-component')
+)
+</script>
 ```
 
 ## 📝 工作原理

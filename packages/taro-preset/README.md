@@ -20,8 +20,9 @@
 ## 📦 安装
 
 ### 必需依赖安装
-使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced` 包以支持异步组件加载：
+使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced`或 `@taro-minify-pack/vue-lazy-enhanced` 包以支持异步组件样式加载：
 
+#### react
 ```bash
 # 使用 npm
 npm install @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
@@ -31,6 +32,18 @@ yarn add @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
 
 # 使用 pnpm
 pnpm add @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
+```
+
+#### vue
+```bash
+# 使用 npm
+npm install @taro-minify-pack/preset @taro-minify-pack/vue-lazy-enhanced
+
+# 使用 yarn
+yarn add @taro-minify-pack/preset @taro-minify-pack/vue-lazy-enhanced
+
+# 使用 pnpm
+pnpm add @taro-minify-pack/preset @taro-minify-pack/vue-lazy-enhanced
 ```
 
 ## 🛠️ 配置
@@ -137,6 +150,8 @@ module.exports = {
             },
             // 异步加载主包代码配置
             asyncPack: {
+                // 框架类型，可选 'react' 或 'vue'
+                framework: 'react',
                 // 动态包名称前缀
                 dynamicPackageNamePrefix: 'dynamic-common',
                 // 动态包数量
