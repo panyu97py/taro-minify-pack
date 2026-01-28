@@ -3,6 +3,7 @@
 > 预设配置，整合了 @taro-minify-pack 系列核心插件，提供一键式优化解决方案，简化 Taro 项目的性能优化配置。
 
 该预设包含以下插件：
+
 - `@taro-minify-pack/plugin-async-pack`: 异步加载主包代码，优化主包体积
 - `@taro-minify-pack/plugin-remote-assets`: 远程资源上传，优化主包体积
 - `@taro-minify-pack/plugin-cover-browserslist`: 根据微信小程序基础库版本自动设置 browserslist
@@ -20,9 +21,11 @@
 ## 📦 安装
 
 ### 必需依赖安装
+
 使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced`或 `@taro-minify-pack/vue-lazy-enhanced` 包以支持异步组件样式加载：
 
 #### react
+
 ```bash
 # 使用 npm
 npm install @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
@@ -35,6 +38,7 @@ pnpm add @taro-minify-pack/preset @taro-minify-pack/react-lazy-enhanced
 ```
 
 #### vue
+
 ```bash
 # 使用 npm
 npm install @taro-minify-pack/preset @taro-minify-pack/vue-lazy-enhanced
@@ -60,7 +64,7 @@ module.exports = {
             ts: true,
             compiler: 'webpack5',
             // 在原有基础上添加这个配置即可
-            'dynamic-import-node': process.env.TARO_ENV !== 'weapp', 
+            'dynamic-import-node': process.env.TARO_ENV !== 'weapp',
         }]
     ]
 }
@@ -73,14 +77,14 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/preset')
+const {aliOssUploadAdapter} = require('@taro-minify-pack/preset')
 
 module.exports = {
     compiler: {
         type: 'webpack5',
         prebundle: {
             // 关闭预打包，与分包异步编译有冲突
-            enable: false, 
+            enable: false,
         }
     },
     presets: [
@@ -120,14 +124,14 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
+const {aliOssUploadAdapter} = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
 
 module.exports = {
     compiler: {
         type: 'webpack5',
         prebundle: {
             // 关闭预打包，与分包异步编译有冲突
-            enable: false, 
+            enable: false,
         }
     },
     presets: [
@@ -189,10 +193,11 @@ module.exports = {
 
 ### asyncPack 配置
 
-| 选项名                      | 类型       | 默认值                | 描述      |
-|--------------------------|----------|--------------------|---------|
-| dynamicPackageNamePrefix | `string` | `'dynamic-common'` | 动态包名称前缀 |
-| dynamicPackageCount      | `number` | `1`                | 动态包数量   |
+| 选项名                      | 类型               | 默认值                | 描述                      |
+|--------------------------|------------------|--------------------|-------------------------|
+| framework                | `react` \| `vue` | `'react'`          | 框架类型，可选 'react' 或 'vue' |
+| dynamicPackageNamePrefix | `string`         | `'dynamic-common'` | 动态包名称前缀                 |
+| dynamicPackageCount      | `number`         | `1`                | 动态包数量                   |
 
 ### remoteAssets 配置
 
@@ -238,8 +243,11 @@ module.exports = {
 6. **Webpack 版本**：该预设仅支持 Webpack 5 编译器，请确保 Taro 项目使用 `compiler.type = 'webpack5'`。
 
 7. **remote-assets 插件版本兼容性**：
-    - **Taro < 4.0.10**：由于 `@tarojs/webpack5-runner` 不支持使用绝对路径注册 PostCSS 插件，在低版本 Taro 中直接使用本插件可能会导致插件无法生效。如需在低版本中使用，请参考官方 Pull Request( `https://github.com/NervJS/taro/pull/18683/files` ) 自行 patch。
+    - **Taro < 4.0.10**：由于 `@tarojs/webpack5-runner` 不支持使用绝对路径注册 PostCSS 插件，在低版本 Taro
+      中直接使用本插件可能会导致插件无法生效。如需在低版本中使用，请参考官方 Pull Request(
+      `https://github.com/NervJS/taro/pull/18683/files` ) 自行 patch。
     - **Taro ≥ 4.0.10**：可直接使用，无需额外处理。
+
 ## 📄 许可证
 
 MIT License

@@ -14,20 +14,25 @@
 ## 📦 安装
 
 ### 必需依赖安装
+
 使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced`或 `@taro-minify-pack/vue-lazy-enhanced` 包以支持异步组件样式加载：
 
 #### react
+
 ##### npm 安装
+
 ```bash
 npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 
 ### yarn 安装
+
 ```bash
 yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
 
 ### pnpm 安装
+
 ```bash
 pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
 ```
@@ -35,16 +40,19 @@ pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanc
 #### vue
 
 ##### npm 安装
+
 ```bash
 npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
 ```
 
 ### yarn 安装
+
 ```bash
 yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
 ```
 
 ### pnpm 安装
+
 ```bash
 pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
 ```
@@ -52,6 +60,7 @@ pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
 ## ⚙️ 配置
 
 ### `babel`配置
+
 ```ts
 // babel-preset-taro 更多选项和默认值：
 // https://docs.taro.zone/docs/next/babel-config
@@ -62,13 +71,14 @@ module.exports = {
             ts: true,
             compiler: 'webpack5',
             // 在原有基础上添加这个配置即可
-            'dynamic-import-node': process.env.TARO_ENV !== 'weapp', 
+            'dynamic-import-node': process.env.TARO_ENV !== 'weapp',
         }]
     ]
 }
 ```
 
 ### `Taro` 配置
+
 ```js
 // config/index.js
 module.exports = {
@@ -95,34 +105,38 @@ module.exports = {
 ## 🚀 使用
 
 ### 基本使用
+
 ```ts
 // 动态导入模块
 const module = await import('./dynamic-module')
 ```
 
 ### React 组件懒加载
+
 ```tsx
 // 插件会自动将 React.lazy 转换为使用 @taro-minify-pack/react-lazy-enhanced 的实现
-import { lazy, Suspense } from 'react'
+import {lazy, Suspense} from 'react'
 
 const DynamicComponent = lazy(() => import('./DynamicComponent'))
 
 function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <DynamicComponent />
-    </Suspense>
-  )
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <DynamicComponent/>
+        </Suspense>
+    )
 }
 ```
 
 ### Vue 组件懒加载
+
 ```vue
+
 <template>
   <view class="index">
     <Suspense>
       <template #default>
-         <AsyncComponent/>
+        <AsyncComponent/>
       </template>
       <template #fallback>
         <view>loading...</view>
@@ -132,33 +146,34 @@ function App() {
 </template>
 
 <script setup>
-import {defineAsyncComponent, ref} from 'vue'
-const AsyncComponent = defineAsyncComponent(() => import('./async-component')
-)
+  import {defineAsyncComponent, ref} from 'vue'
+
+  const AsyncComponent = defineAsyncComponent(() => import('./async-component')
+  )
 </script>
 ```
 
 ## 📝 工作原理
 
 1. **Webpack 配置修改**：
-   - 覆盖 `splitChunks` 规则，使`common`与`vendors`只处理同步模块
-   - 配置 `chunkFilename` 生成规则，确保异步模块正确输出到指定分包
-   - 修改 `miniCssExtractPlugin` 配置，确保异步模块的样式文件也能正确拆分到指定分包
+    - 覆盖 `splitChunks` 规则，使`common`与`vendors`只处理同步模块
+    - 配置 `chunkFilename` 生成规则，确保异步模块正确输出到指定分包
+    - 修改 `miniCssExtractPlugin` 配置，确保异步模块的样式文件也能正确拆分到指定分包
 
 2. **Babel 转换**：
-   - 自动将所有 `React.lazy` 调用转换为使用 `@taro-minify-pack/react-lazy-enhanced` 的实现
-   - 无需手动修改代码即可获得增强功能
+    - 自动将所有 `React.lazy` 调用转换为使用 `@taro-minify-pack/react-lazy-enhanced` 的实现
+    - 无需手动修改代码即可获得增强功能
 
 3. **样式处理**：
-   - 为每个异步分包生成样式组件
-   - 自动收集该分包下的所有样式文件并通过 `@import` 引入
-   - 确保异步模块的样式在组件加载时同步加载
+    - 为每个异步分包生成样式组件
+    - 自动收集该分包下的所有样式文件并通过 `@import` 引入
+    - 确保异步模块的样式在组件加载时同步加载
 
 4. **小程序配置修改**：
-   - 自动修改 `app.json`，添加异步分包配置
-   - 添加异步组件到全局 `usingComponents`
-   - 设置 `componentPlaceholder` 以优化渲染性能
-   - 更新页面 `WXML` 文件，在每个页面中自动添加样式组件引用
+    - 自动修改 `app.json`，添加异步分包配置
+    - 添加异步组件到全局 `usingComponents`
+    - 设置 `componentPlaceholder` 以优化渲染性能
+    - 更新页面 `WXML` 文件，在每个页面中自动添加样式组件引用
 
 ## ⚠️ 注意事项
 
@@ -171,34 +186,40 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 
 ## 🔧 配置选项
 
-| 选项名                        | 类型       | 默认值                | 描述       |
-|----------------------------|----------|--------------------|----------|
-| `dynamicPackageNamePrefix` | `string` | `'dynamic-common'` | 异步分包名称前缀 |
-| `dynamicPackageCount`      | `number` | `1`                | 异步分包数量   |
+| 选项名                        | 类型             | 默认值                | 描述                      |
+|----------------------------|----------------|--------------------|-------------------------|
+| `framework`                | `react`\|`vue` | `'react'`          | 框架类型，可选 'react' 或 'vue' |
+| `dynamicPackageNamePrefix` | `string`       | `'dynamic-common'` | 异步分包名称前缀                |
+| `dynamicPackageCount`      | `number`       | `1`                | 异步分包数量                  |
 
 ## 🤝 常见问题
 
 ### 1. 异步模块没有被拆分到分包？
+
 - 请检查是否正确配置了 `dynamic-import-node` 选项
 - 确保已关闭 Taro 的预打包功能
 - 确认使用了 Webpack 5 编译器
 - 确保代码中使用了 `import()` 动态导入语法
 
 ### 2. 异步组件的样式没有加载？
+
 - 请确保已正确安装 `@taro-minify-pack/react-lazy-enhanced` 包
 - 检查是否有编译错误或警告信息
 
 ### 3. 配置后编译失败？
+
 - 请检查配置选项是否正确
 - 确认 Taro 版本与插件版本兼容
 - 查看编译日志，排查具体错误原因
 
 ### 4. 页面加载时出现白屏？
+
 - 请检查是否正确使用了 `Suspense` 组件包裹异步组件
 - 确保异步组件的导入路径正确
 - 检查网络请求是否正常
 
 ### 5. 分包数量配置后没有生效？
+
 - 请确保 `dynamicPackageCount` 配置的值大于0
 - 检查是否有足够的动态导入模块来拆分到多个分包
 
