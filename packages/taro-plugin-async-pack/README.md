@@ -1,52 +1,28 @@
 # @taro-minify-pack/plugin-async-pack
 
-异步加载主包代码，优化主包体积（包含异步模块`js`与样式文件）
+异步加载主包代码，优化主包体积（仅包含异步模块`js`文件）
 
 ## ✨ 功能特性
 
 - **主包体积优化**：将动态导入的模块自动拆分到异步分包，有效减少主包体积
-- **样式文件异步加载**：支持异步模块的样式文件同步异步加载
-- **自动转换 React.lazy**：无需手动修改代码，自动将 React.lazy 转换为增强版实现
 - **灵活配置**：可自定义异步分包名称前缀和数量
-- **自动化处理**：自动修改小程序配置文件和页面WXML，无需手动操作
+- **自动化处理**：自动修改小程序配置文件，无需手动操作
 - **性能提升**：减少小程序启动时间，提升用户体验
 
 ## 📦 安装
 
-### 必需依赖安装
-使用该预设时，需要同时安装 `@taro-minify-pack/react-lazy-enhanced`或 `@taro-minify-pack/vue-lazy-enhanced` 包以支持异步组件样式加载：
-
-#### react
-##### npm 安装
 ```bash
-npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
+npm install @taro-minify-pack/plugin-async-pack
 ```
 
 ### yarn 安装
 ```bash
-yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
+yarn add @taro-minify-pack/plugin-async-pack
 ```
 
 ### pnpm 安装
 ```bash
-pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/react-lazy-enhanced
-```
-
-#### vue
-
-##### npm 安装
-```bash
-npm install @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
-```
-
-### yarn 安装
-```bash
-yarn add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
-```
-
-### pnpm 安装
-```bash
-pnpm add @taro-minify-pack/plugin-async-pack @taro-minify-pack/vue-lazy-enhanced
+pnpm add @taro-minify-pack/plugin-async-pack
 ```
 
 ## ⚙️ 配置
@@ -81,8 +57,6 @@ module.exports = {
     },
     plugins: [
         ['@taro-minify-pack/plugin-async-pack', {
-            // 框架类型，可选 'react' 或 'vue'
-            framework: 'react',
             // 异步分包名前缀，默认为 'dynamic-common'
             dynamicPackageNamePrefix: 'dynamic-common',
             // 异步分包数量，默认为 1
@@ -102,7 +76,6 @@ const module = await import('./dynamic-module')
 
 ### React 组件懒加载
 ```tsx
-// 插件会自动将 React.lazy 转换为使用 @taro-minify-pack/react-lazy-enhanced 的实现
 import { lazy, Suspense } from 'react'
 
 const DynamicComponent = lazy(() => import('./DynamicComponent'))
@@ -143,22 +116,15 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 1. **Webpack 配置修改**：
    - 覆盖 `splitChunks` 规则，使`common`与`vendors`只处理同步模块
    - 配置 `chunkFilename` 生成规则，确保异步模块正确输出到指定分包
-   - 修改 `miniCssExtractPlugin` 配置，确保异步模块的样式文件也能正确拆分到指定分包
+   - 修改 `miniCssExtractPlugin` 配置，确保异步模块的样式文件也能正确拆分到指定目录
+   - 修改 `runtime.js` 输出，确保异步模块的`js`文件能通过`require.async`正确引入
 
-2. **Babel 转换**：
-   - 自动将所有 `React.lazy` 调用转换为使用 `@taro-minify-pack/react-lazy-enhanced` 的实现
-   - 无需手动修改代码即可获得增强功能
-
-3. **样式处理**：
+2. **样式处理**：
    - 为每个异步分包生成样式组件
-   - 自动收集该分包下的所有样式文件并通过 `@import` 引入
-   - 确保异步模块的样式在组件加载时同步加载
+   - 自动收集该分包下的所有样式文件并通过 `@import` 引入主包`app.wxss`同步引入
 
-4. **小程序配置修改**：
+3. **小程序配置修改**：
    - 自动修改 `app.json`，添加异步分包配置
-   - 添加异步组件到全局 `usingComponents`
-   - 设置 `componentPlaceholder` 以优化渲染性能
-   - 更新页面 `WXML` 文件，在每个页面中自动添加样式组件引用
 
 ## ⚠️ 注意事项
 
@@ -168,6 +134,7 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 4. **Webpack 版本**：仅支持 Webpack 5 编译器
 5. **自动转换**：插件会自动转换所有 `React.lazy` 调用，无需手动使用 `@taro-minify-pack/react-lazy-enhanced` 包中的懒加载函数
 6. **分包数量**：根据项目实际情况配置 `dynamicPackageCount`，过多的分包可能会影响性能
+7. **版本要求**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
 
 ## 🔧 配置选项
 

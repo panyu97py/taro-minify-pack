@@ -17,10 +17,6 @@
   },
   "author": "yu.pan",
   "license": "MIT",
-  "peerDependencies": {
-    "@taro-minify-pack/react-lazy-enhanced": "workspace:*",
-    "@taro-minify-pack/vue-lazy-enhanced": "workspace:*"
-  },
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/generator": "^7.26.10",

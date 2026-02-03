@@ -5,11 +5,7 @@ import traverse from '@babel/traverse'
 import * as types from '@babel/types'
 import type {
   AssignmentExpression,
-  ObjectMethod,
-  ObjectProperty,
-  SpreadElement,
-  Statement, UnaryExpression,
-  VariableDeclarator
+  Statement, UnaryExpression
 } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
 import { isDynamicPackageJsAsset } from './utils'
@@ -104,20 +100,11 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
 const webpackLoadDynamicStylesheetTemplate = `
   !function () {
-    var loadStylesheet = function (chunkId) {
-      const href = __webpack_require__.miniCssF(chunkId);
-      const fullHref = __webpack_require__.p + href;
-      const dynamicPackageNameRegex = DYNAMIC_PACKAGE_NAME_REGEX;
-      const [,dynamicPackageName] = fullHref.match(dynamicPackageNameRegex) || [];
-      const { SingletonPromise } = require('~/singleton-promise.js');
-      return SingletonPromise.wait({ dynamicPackageName })
+    var loadStylesheet = function (_chunkId) {
+      return Promise.resolve()
     }
-    var installedCssChunks = INSTALLED_CSS_CHUNKS;
     __webpack_require__.f.miniCss = function (dynamicStylesheetChunkId, promises) {
-      var cssChunks = CSS_CHUNKS;
-      if (installedCssChunks[dynamicStylesheetChunkId] !== 0 && cssChunks[dynamicStylesheetChunkId]) {
-        promises.push(loadStylesheet(dynamicStylesheetChunkId));
-      }
+      promises.push(loadStylesheet(dynamicStylesheetChunkId));
     };
   }();
 `
@@ -149,42 +136,9 @@ const replaceWebpackLoadDynamicModuleStylesheetFn = (path: NodePath<UnaryExpress
 
   if (!needProcessed) return
 
-  const installedCssChunksValueAst : Array<ObjectMethod | ObjectProperty | SpreadElement> = []
+  const templateCodeAst = template.ast(webpackLoadDynamicStylesheetTemplate)
 
-  const cssChunksValueAst: Array<ObjectMethod | ObjectProperty | SpreadElement> = []
-
-  path.traverse({
-    VariableDeclarator: (nodePath: NodePath<VariableDeclarator>) => {
-      const { id, init } = nodePath.node || {}
-      if (!types.isObjectExpression(init)) return
-      if (types.isIdentifier(id, { name: 'cssChunks' })) cssChunksValueAst.push(...init.properties)
-      if (types.isIdentifier(id, { name: 'installedCssChunks' })) installedCssChunksValueAst.push(...init.properties)
-    }
-  })
-
-  const { dynamicPackageNamePrefix } = opts
-
-  const DYNAMIC_PACKAGE_NAME_REGEX = types.regExpLiteral(`(${dynamicPackageNamePrefix}(?:-[a-z]{2})?)\\/`)
-
-  const INSTALLED_CSS_CHUNKS = types.objectExpression(installedCssChunksValueAst)
-
-  const CSS_CHUNKS = types.objectExpression(cssChunksValueAst)
-
-  const templateCodeAst = template.statement(webpackLoadDynamicStylesheetTemplate)({ CSS_CHUNKS, DYNAMIC_PACKAGE_NAME_REGEX, INSTALLED_CSS_CHUNKS })
-
-  path.parentPath.replaceWith(templateCodeAst)
-}
-
-const removeCreateStylesheetFn = (nodePath: NodePath<VariableDeclarator>) => {
-  const { id } = nodePath.node || {}
-  if (!types.isIdentifier(id, { name: 'createStylesheet' })) return
-  nodePath.remove()
-}
-
-const removeFindStylesheetFn = (nodePath: NodePath<VariableDeclarator>) => {
-  const { id } = nodePath.node || {}
-  if (!types.isIdentifier(id, { name: 'findStylesheet' })) return
-  nodePath.remove()
+  path.parentPath.replaceWith(templateCodeAst as Statement)
 }
 
 export const transformWebpackRuntime = (code: string, opts: Opts) => {
@@ -195,10 +149,6 @@ export const transformWebpackRuntime = (code: string, opts: Opts) => {
     },
     AssignmentExpression: (nodePath: NodePath<AssignmentExpression>) => {
       replaceWebpackLoadScriptFn(nodePath, opts)
-    },
-    VariableDeclarator (nodePath: NodePath<VariableDeclarator>) {
-      removeCreateStylesheetFn(nodePath)
-      removeFindStylesheetFn(nodePath)
     }
   })
   return generator(ast).code
