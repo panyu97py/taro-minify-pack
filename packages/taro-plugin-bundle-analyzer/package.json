@@ -18,7 +18,7 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "webpack-bundle-analyzer": "^5.1.1"
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "devDependencies": {
     "@tarojs/service": "^4.0.8",
