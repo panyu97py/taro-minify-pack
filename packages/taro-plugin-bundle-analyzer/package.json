@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/plugin-bundle-analyzer",
-  "version": "0.0.5",
+  "version": "0.0.6-alpha.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "webpack-bundle-analyzer": "^5.1.1"
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "devDependencies": {
     "@tarojs/service": "^4.0.8",
