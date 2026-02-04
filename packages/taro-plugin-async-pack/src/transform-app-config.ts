@@ -4,13 +4,12 @@ import { generateDynamicPackageName } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: Record<string, RawSource>
-  asyncComponents: Record<string, string>
 }
 
 const appConfigAssetKey = 'app.json'
 
 export const transformAppConfig = (opts: Opts) => {
-  const { dynamicPackageCount, asyncComponents, assets } = opts
+  const { dynamicPackageCount, assets } = opts
 
   const curAppConfig = JSON.parse(assets[appConfigAssetKey].source() as string)
 
@@ -22,14 +21,8 @@ export const transformAppConfig = (opts: Opts) => {
     return { root: generateDynamicPackageName({ ...opts, order }), pages: [] }
   })
 
-  const asyncComponentPlaceholder = Object.keys(asyncComponents).reduce((result, item) => {
-    return { ...result, [item]: 'block' }
-  }, {})
-
   const finalAppConfig = {
     ...otherAppJSON,
-    usingComponents: { ...usingComponents, ...asyncComponents },
-    componentPlaceholder: { ...componentPlaceholder, ...asyncComponentPlaceholder },
     subPackages: [...finalSubPackages, ...dynamicPackagesConfigs],
     resolveAlias: { ...resolveAlias, '~/*': '/*' }
   }

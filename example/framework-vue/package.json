@@ -44,7 +44,6 @@
   "dependencies": {
     "@babel/runtime": "^7.24.4",
     "@taro-minify-pack/preset": "workspace:*",
-    "@taro-minify-pack/vue-lazy-enhanced": "workspace:*",
     "@tarojs/components": "4.0.8",
     "@tarojs/helper": "4.0.8",
     "@tarojs/plugin-platform-weapp": "4.0.8",
