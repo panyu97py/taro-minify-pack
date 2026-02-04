@@ -25,25 +25,6 @@
 - 🧩 提供开箱即用的 preset，零成本接入完整优化方案
 - 🔌 各插件可独立使用，按需组合，无强依赖耦合
 
-## ⚠️ 注意事项
-
-1. **预打包冲突**：当启用 `asyncPack` 时，必须关闭 Taro 的预打包功能（`compiler.prebundle.enable = false`），否则会导致构建冲突。
-
-2. **Babel 配置**：必须在 Babel 配置中添加 `'dynamic-import-node': process.env.TARO_ENV !== 'weapp'`，以确保异步加载功能在不同环境下正常工作。
-
-3. **远程资源上传**：使用 `remoteAssets` 时，需要提供有效的上传适配器和配置信息，确保资源能够正确上传到远程服务器。
-
-4. **基础库版本**：使用 `coverBrowsersList` 时，必须指定正确的微信小程序基础库版本，以确保生成的代码兼容目标环境。
-
-5. **Webpack 版本**：该预设仅支持 Webpack 5 编译器，请确保 Taro 项目使用 `compiler.type = 'webpack5'`。
-
-6. **remote-assets 插件版本兼容性**：
-    - **Taro < 4.0.10**：由于 `@tarojs/webpack5-runner` 不支持使用绝对路径注册 PostCSS 插件，在低版本 Taro 中直接使用本插件可能会导致插件无法生效。如需在低版本中使用，请参考官方 Pull Request( `https://github.com/NervJS/taro/pull/18683/files` ) 自行 patch。
-    - **Taro ≥ 4.0.10**：可直接使用，无需额外处理。
-
-7. **async-pack 插件版本建议**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
-
-
 ## 📦 Packages
 
 | Package                                                                                                           | Description                                                                    |
