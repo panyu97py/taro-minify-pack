@@ -40,9 +40,7 @@ export default defineConfig<'webpack5'>(async (merge) => {
             region: 'your-region',
           })
         },
-        asyncPack: {
-          framework:'vue'
-        }
+        asyncPack: true
       }
       ]
     ],
