@@ -132,9 +132,8 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 2. **关闭预打包**：必须关闭 Taro 的预打包功能，否则可能与异步分包功能冲突
 3. **Babel 配置**：需要正确配置 Babel 的 `dynamic-import-node` 选项
 4. **Webpack 版本**：仅支持 Webpack 5 编译器
-5. **自动转换**：插件会自动转换所有 `React.lazy` 调用，无需手动使用 `@taro-minify-pack/react-lazy-enhanced` 包中的懒加载函数
-6. **分包数量**：根据项目实际情况配置 `dynamicPackageCount`，过多的分包可能会影响性能
-7. **版本要求**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
+5. **分包数量**：根据项目实际情况配置 `dynamicPackageCount`，过多的分包可能会影响性能
+6. **版本要求**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
 
 ## 🔧 配置选项
 
@@ -152,7 +151,6 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 - 确保代码中使用了 `import()` 动态导入语法
 
 ### 2. 异步组件的样式没有加载？
-- 请确保已正确安装 `@taro-minify-pack/react-lazy-enhanced` 包
 - 检查是否有编译错误或警告信息
 
 ### 3. 配置后编译失败？
