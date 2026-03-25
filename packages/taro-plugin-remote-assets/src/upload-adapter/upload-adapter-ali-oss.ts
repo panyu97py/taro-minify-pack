@@ -1,7 +1,6 @@
 import { defineUploaderAdapter } from './define-adapter'
 import { LocalAssetInfo } from '@/types'
 import AliOss from 'ali-oss'
-import path from 'path'
 
 export interface AliOssUploadAdapterOpt extends AliOss.Options {
   customDomain?: string
@@ -27,12 +26,12 @@ export const aliOssUploadAdapter = defineUploaderAdapter((opt: AliOssUploadAdapt
 
   const getRemoteAssetPath = (localAssetInfo: LocalAssetInfo) => {
     const { uniqueKey, ext } = localAssetInfo
-    return path.join(bucketDir, `${uniqueKey}${ext}`)
+    return `${bucketDir}/${uniqueKey}${ext}`
   }
 
   const getRemoteAssetUrl = (localAssetInfo: LocalAssetInfo) => {
     const { uniqueKey, ext } = localAssetInfo
-    if (customDomain) return path.join(customDomain, `${uniqueKey}${ext}`)
+    if (customDomain) return `${customDomain}/${uniqueKey}${ext}`
     const remotePath = getRemoteAssetPath(localAssetInfo)
     return client.signatureUrl(remotePath)
   }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Taro Minify Pack 风格"
+  short_description: "遵循这个仓库的 TypeScript 与 Taro 约定。"
+  default_prompt: "使用 $taro-minify-pack-style 按 taro-minify-pack 仓库现有风格完成改动。"
