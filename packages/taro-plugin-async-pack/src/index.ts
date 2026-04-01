@@ -2,8 +2,16 @@ import type { IPluginContext } from '@tarojs/service'
 import type { PathData } from 'webpack'
 import { transformWebpackRuntime } from './transform-webpack-runtime'
 import { TransformOpt, TransformBeforeCompressionPlugin, PLUGIN_NAME as TransformBeforeCompressionPluginName } from './transform-before-compression-plugin'
+import { InjectStyleComponentPlugin, PLUGIN_NAME as InjectStyleComponentPluginName, InjectStyleComponentName } from './inject-style-component'
 import { transformAppConfig } from './transform-app-config'
-import { generateDynamicPackageName, hashModBigInt, isDynamicPackageName, isDynamicPackageWXssAsset } from './utils'
+import { transformPagesWXml } from './transform-pages-wxml'
+import {
+  generateDynamicPackageName,
+  generateKeyByOrder,
+  hashModBigInt,
+  isDynamicPackageName,
+  isDynamicPackageWXssAsset
+} from './utils'
 import { AsyncPackOpts } from './types'
 import { transformAppStylesheet } from './transform-app-stylesheet'
 import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge-output'
@@ -36,6 +44,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
       return `${generateDynamicPackageName({ ...finalOpts, order })}/[chunkhash]${ext}`
     }
 
+    // TODO 增加可配置的 splitChunks 配置用于用户自定义分包并支持样式分包
     chain.optimization.merge({
       splitChunks: {
         ...existingSplitChunks,
@@ -77,6 +86,8 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
       test: (assetName: string) => isDynamicPackageWXssAsset(finalOpts.dynamicPackageNamePrefix, assetName),
       outputFile: `${finalOpts.dynamicPackageNamePrefix}.wxss`
     }])
+
+    chain.plugin(InjectStyleComponentPluginName).use(InjectStyleComponentPlugin, [finalOpts])
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
@@ -84,6 +95,17 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     if (!hasDynamicModule) return
 
-    transformAppConfig({ ...finalOpts, assets })
+    const asyncComponents = (() => {
+      if (finalOpts.dynamicPackageCount <= 1) { return { [InjectStyleComponentName]: `${generateDynamicPackageName(finalOpts)}/${InjectStyleComponentName}` } }
+      return new Array(finalOpts.dynamicPackageCount).fill(null).reduce((result, _, order) => {
+        const dynamicPackageName = generateDynamicPackageName({ ...finalOpts, order })
+        const componentName = `${InjectStyleComponentName}-${generateKeyByOrder(order)}`
+        return { ...result, [componentName]: `${dynamicPackageName}/${InjectStyleComponentName}` }
+      }, {})
+    })()
+
+    transformAppConfig({ ...finalOpts, assets, asyncComponents })
+
+    transformPagesWXml({ assets, asyncComponents })
   })
 }

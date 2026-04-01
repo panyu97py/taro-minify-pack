@@ -30,6 +30,10 @@ export const isDynamicPackageWXssAsset = (prefix: string, assetName: string) => 
   const dynamicWXssAssetRegExp = new RegExp(`^${prefix}(?:-[a-z]{2})?\\/.*\\.wxss$`)
   return dynamicWXssAssetRegExp.test(assetName)
 }
+export const isDynamicPackageWXssAssetWithOrder = (opt: AsyncPackOpts & { order?: number }, assetName: string) => {
+  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return isDynamicPackageWXssAsset(opt.dynamicPackageNamePrefix, assetName)
+  return new RegExp(`^${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}\\/.*\\.wxss$`).test(assetName)
+}
 
 export const generateDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
   if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
