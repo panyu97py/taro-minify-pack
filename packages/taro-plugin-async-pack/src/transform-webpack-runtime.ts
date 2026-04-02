@@ -8,7 +8,7 @@ import type {
   Statement, UnaryExpression
 } from '@babel/types'
 import type { CompilationAssets, AsyncPackOpts } from './types'
-import { isDynamicPackageJsAsset } from './utils'
+import { isDynamicPackageAsset, matchSuffix } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: CompilationAssets;
@@ -74,7 +74,7 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
   const { assets } = opts
 
   const dynamicJsAssets = Object.keys(assets).filter((assetName) => {
-    return isDynamicPackageJsAsset(opts, assetName)
+    return isDynamicPackageAsset(opts, assetName) && matchSuffix('js', assetName)
   })
 
   const loadDynamicModuleFnMapCode = (() => {
