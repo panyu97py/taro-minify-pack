@@ -1,4 +1,10 @@
 import { AsyncPackOpts } from './types'
+import type { PathData } from 'webpack'
+
+export const hashModBigInt = (hash: string, mod: number) => {
+  if (!hash) return 0
+  return Number(BigInt('0x' + hash) % BigInt(mod))
+}
 
 export const generateKeyByOrder = (order: number) => {
   const startStr = 'a'.charCodeAt(0)
@@ -7,9 +13,16 @@ export const generateKeyByOrder = (order: number) => {
   return `${firstLetter}${secondLetter}`
 }
 
-export const hashModBigInt = (hash: string, mod: number) => {
-  if (!hash) return 0
-  return Number(BigInt('0x' + hash) % BigInt(mod))
+export const generateDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
+  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
+  return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
+}
+
+export const generateChunkFilename = (opt: AsyncPackOpts & { pathData: PathData, ext: string }) => {
+  const { chunk } = opt.pathData
+  if (chunk?.name) return `${chunk?.name}${opt.ext}`
+  const order = hashModBigInt(chunk?.hash || '', opt.dynamicPackageCount)
+  return `${generateDynamicPackageName({ ...opt, order })}/[chunkhash]${opt.ext}`
 }
 
 export const isNumber = (val: any) => {
@@ -30,12 +43,8 @@ export const isDynamicPackageWXssAsset = (prefix: string, assetName: string) => 
   const dynamicWXssAssetRegExp = new RegExp(`^${prefix}(?:-[a-z]{2})?\\/.*\\.wxss$`)
   return dynamicWXssAssetRegExp.test(assetName)
 }
+
 export const isDynamicPackageWXssAssetWithOrder = (opt: AsyncPackOpts & { order?: number }, assetName: string) => {
   if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return isDynamicPackageWXssAsset(opt.dynamicPackageNamePrefix, assetName)
   return new RegExp(`^${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}\\/.*\\.wxss$`).test(assetName)
-}
-
-export const generateDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
-  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
-  return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
 }

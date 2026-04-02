@@ -14,9 +14,9 @@ import {
 import { transformAppConfig } from './transform-app-config'
 import { transformPagesWXml } from './transform-pages-wxml'
 import {
+  generateChunkFilename,
   generateDynamicPackageName,
   generateKeyByOrder,
-  hashModBigInt,
   isDynamicPackageName,
   isDynamicPackageWXssAsset
 } from './utils'
@@ -54,13 +54,6 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
       return { ...result, [packageName]: cacheGroup }
     }, {})
 
-    const generateChunkFilename = (pathData: PathData, ext: string) => {
-      const { chunk } = pathData
-      if (chunk?.name) return `${chunk?.name}${ext}`
-      const order = hashModBigInt(chunk?.hash || '', finalOpts.dynamicPackageCount)
-      return `${generateDynamicPackageName({ ...finalOpts, order })}/[chunkhash]${ext}`
-    }
-
     chain.optimization.merge({
       splitChunks: {
         ...existingSplitChunks,
@@ -75,7 +68,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
 
     chain.merge({
       output: {
-        chunkFilename: (pathData: PathData) => generateChunkFilename(pathData, '.js'),
+        chunkFilename: (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.js' }),
         path: ctx.paths.outputPath,
         clean: true
       }
@@ -84,7 +77,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
     chain.plugin('miniCssExtractPlugin')
       .tap((args) => {
         const [options] = args
-        const chunkFilename = (pathData: PathData) => generateChunkFilename(pathData, '.wxss')
+        const chunkFilename = (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.wxss' })
         return [{ ...options, chunkFilename }]
       })
 
