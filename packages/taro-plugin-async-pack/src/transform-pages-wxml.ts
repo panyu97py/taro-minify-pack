@@ -27,8 +27,7 @@ export const transformPagesWXml = (opts: Opts) => {
   Object.keys(assets).forEach((assetPath) => {
     if (!pageWXmlPaths.includes(assetPath)) return
     const source = assets[assetPath].source() as string
-    const pageRoute = assetPath.replace(/\.wxml$/, '')
-    const asyncComponentCode = Object.keys(asyncComponents).map((item) => `<${item} route="${pageRoute}"/>`)
+    const asyncComponentCode = Object.keys(asyncComponents).map((item) => `<${item}/>`)
     const tempCode = [source, ...asyncComponentCode].join('\n')
     assets[assetPath] = new RawSource(tempCode)
   })
