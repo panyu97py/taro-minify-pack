@@ -35,7 +35,7 @@ export class InjectStyleComponentPlugin {
 
           const styleFileContent = Object.keys(assets).reduce((result, assetPath) => {
             if (!new RegExp(`^${customDynamicPackageName}\\/.*\\.wxss$`).test(assetPath)) return result
-            const relativePath = path.relative(customDynamicPackageName, assetPath)
+            const relativePath = path.posix.relative(customDynamicPackageName, assetPath)
             const code = `@import './${relativePath}';`
             return result + code + '\n'
           }, '')
