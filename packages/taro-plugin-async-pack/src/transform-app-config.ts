@@ -1,6 +1,6 @@
 import type { AsyncPackOpts } from './types'
 import { RawSource } from 'webpack-sources'
-import { generateDynamicPackageName } from './utils'
+import { generateDefaultDynamicPackageName } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: Record<string, RawSource>
@@ -10,7 +10,7 @@ interface Opts extends AsyncPackOpts {
 const appConfigAssetKey = 'app.json'
 
 export const transformAppConfig = (opts: Opts) => {
-  const { dynamicPackageCount, asyncComponents, assets } = opts
+  const { dynamicPackageCount, customDynamicPackages, asyncComponents, assets } = opts
 
   const curAppConfig = JSON.parse(assets[appConfigAssetKey].source() as string)
 
@@ -18,8 +18,12 @@ export const transformAppConfig = (opts: Opts) => {
 
   const finalSubPackages = subPackages || subpackages || []
 
-  const dynamicPackagesConfigs = new Array(dynamicPackageCount).fill(null).map((_, order) => {
-    return { root: generateDynamicPackageName({ ...opts, order }), pages: [] }
+  const defaultDynamicPackagesConfig = new Array(dynamicPackageCount).fill(null).map((_, order) => {
+    return { root: generateDefaultDynamicPackageName({ ...opts, order }), pages: [] }
+  })
+
+  const customDynamicPackagesConfig = customDynamicPackages.map(customDynamicPackageItem => {
+    return { root: customDynamicPackageItem.name, pages: [] }
   })
 
   const asyncComponentPlaceholder = Object.keys(asyncComponents).reduce((result, item) => {
@@ -30,7 +34,7 @@ export const transformAppConfig = (opts: Opts) => {
     ...otherAppJSON,
     usingComponents: { ...usingComponents, ...asyncComponents },
     componentPlaceholder: { ...componentPlaceholder, ...asyncComponentPlaceholder },
-    subPackages: [...finalSubPackages, ...dynamicPackagesConfigs],
+    subPackages: [...finalSubPackages, ...defaultDynamicPackagesConfig, ...customDynamicPackagesConfig],
     resolveAlias: { ...resolveAlias, '~/*': '/*' }
   }
 

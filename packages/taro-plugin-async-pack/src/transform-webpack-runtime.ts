@@ -71,10 +71,10 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   if (isProcessed) return
 
-  const { assets, dynamicPackageNamePrefix } = opts
+  const { assets } = opts
 
   const dynamicJsAssets = Object.keys(assets).filter((assetName) => {
-    return isDynamicPackageJsAsset(dynamicPackageNamePrefix, assetName)
+    return isDynamicPackageJsAsset(opts, assetName)
   })
 
   const loadDynamicModuleFnMapCode = (() => {

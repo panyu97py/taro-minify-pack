@@ -15,10 +15,8 @@ import { transformAppConfig } from './transform-app-config'
 import { transformPagesWXml } from './transform-pages-wxml'
 import {
   generateChunkFilename,
-  generateDynamicPackageName,
-  generateKeyByOrder,
-  isDynamicPackageName,
-  isDynamicPackageWXssAsset
+  isAsyncStyleDynamicPackageAsset, isDynamicPackageAsset,
+  matchSuffix
 } from './utils'
 import { AsyncPackOpts } from './types'
 import { transformAppStylesheet } from './transform-app-stylesheet'
@@ -93,7 +91,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
     }])
 
     chain.plugin(MergeOutputPluginName).use(MergeOutputPlugin, [{
-      test: (assetName: string) => isDynamicPackageWXssAsset(finalOpts.dynamicPackageNamePrefix, assetName),
+      test: (assetName: string) => matchSuffix('wxss', assetName) && !isAsyncStyleDynamicPackageAsset(finalOpts, assetName),
       outputFile: `${finalOpts.dynamicPackageNamePrefix}.wxss`
     }])
 
@@ -101,18 +99,15 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
-    const hasDynamicModule = Object.keys(assets).some((key) => isDynamicPackageName(finalOpts.dynamicPackageNamePrefix, key))
+    const hasDynamicModule = Object.keys(assets).some((key) => isDynamicPackageAsset(finalOpts, key))
 
     if (!hasDynamicModule) return
 
-    const asyncComponents = (() => {
-      if (finalOpts.dynamicPackageCount <= 1) return { [InjectStyleComponentName]: `${generateDynamicPackageName(finalOpts)}/${InjectStyleComponentName}` }
-      return new Array(finalOpts.dynamicPackageCount).fill(null).reduce((result, _, order) => {
-        const dynamicPackageName = generateDynamicPackageName({ ...finalOpts, order })
-        const componentName = `${InjectStyleComponentName}-${generateKeyByOrder(order)}`
-        return { ...result, [componentName]: `${dynamicPackageName}/${InjectStyleComponentName}` }
-      }, {})
-    })()
+    const asyncComponents = finalOpts.customDynamicPackages.filter(item => item.asyncStyle).reduce((result, item) => {
+      const { name: packageName } = item
+      const componentName = `${InjectStyleComponentName}-${packageName}`
+      return { ...result, [componentName]: `${packageName}/${InjectStyleComponentName}` }
+    }, {})
 
     transformAppConfig({ ...finalOpts, assets, asyncComponents })
 

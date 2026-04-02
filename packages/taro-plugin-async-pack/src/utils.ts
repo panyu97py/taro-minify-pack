@@ -13,7 +13,7 @@ export const generateKeyByOrder = (order: number) => {
   return `${firstLetter}${secondLetter}`
 }
 
-export const generateDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
+export const generateDefaultDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
   if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
   return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
 }
@@ -22,29 +22,32 @@ export const generateChunkFilename = (opt: AsyncPackOpts & { pathData: PathData,
   const { chunk } = opt.pathData
   if (chunk?.name) return `${chunk?.name}${opt.ext}`
   const order = hashModBigInt(chunk?.hash || '', opt.dynamicPackageCount)
-  return `${generateDynamicPackageName({ ...opt, order })}/[chunkhash]${opt.ext}`
+  return `${generateDefaultDynamicPackageName({ ...opt, order })}/[chunkhash]${opt.ext}`
 }
 
 export const isNumber = (val: any) => {
   return typeof val === 'number' && Number.isFinite(val)
 }
 
-export const isDynamicPackageName = (prefix: string, packageName: string) => {
-  const dynamicModuleRegExp = new RegExp(`^${prefix}(?:-[a-z]{2})?/`)
-  return dynamicModuleRegExp.test(packageName)
+export const isDefaultDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  const dynamicModuleRegExp = new RegExp(`^${opt.dynamicPackageNamePrefix}(?:-[a-z]{2})?/`)
+  return dynamicModuleRegExp.test(assetName)
 }
 
-export const isDynamicPackageJsAsset = (prefix: string, assetName: string) => {
-  const dynamicJsAssetRegExp = new RegExp(`^${prefix}(?:-[a-z]{2})?\\/.*\\.js$`)
-  return dynamicJsAssetRegExp.test(assetName)
+export const isCustomDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  const customDynamicPackageNames = opt.customDynamicPackages.map(item => item.name)
+  return new RegExp(`^(${customDynamicPackageNames.join('|')})`).test(assetName)
 }
 
-export const isDynamicPackageWXssAsset = (prefix: string, assetName: string) => {
-  const dynamicWXssAssetRegExp = new RegExp(`^${prefix}(?:-[a-z]{2})?\\/.*\\.wxss$`)
-  return dynamicWXssAssetRegExp.test(assetName)
+export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  return isDefaultDynamicPackageAsset(opt, assetName) || isCustomDynamicPackageAsset(opt, assetName)
 }
 
-export const isDynamicPackageWXssAssetWithOrder = (opt: AsyncPackOpts & { order?: number }, assetName: string) => {
-  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return isDynamicPackageWXssAsset(opt.dynamicPackageNamePrefix, assetName)
-  return new RegExp(`^${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}\\/.*\\.wxss$`).test(assetName)
+export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => item.name)
+  return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})`).test(assetName)
+}
+
+export const matchSuffix = (suffix: string, assetName: string) => {
+  return new RegExp(`\\.${suffix}$`).test(assetName)
 }
