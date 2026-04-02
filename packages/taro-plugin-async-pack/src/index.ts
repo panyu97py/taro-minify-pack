@@ -47,7 +47,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
 
     const customPackageCacheGroups = finalOpts.customDynamicPackages.reduce((result, item) => {
       const { name: packageName, test } = item
-      const name = (module: Module) => `${packageName}/${module.hash}`
+      const name = (module: Module) => `${packageName}/${module.buildInfo?.hash || module.id}`
       const cacheGroup = { chunks: 'async', test, name }
       return { ...result, [packageName]: cacheGroup }
     }, {})
