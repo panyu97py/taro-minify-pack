@@ -134,8 +134,6 @@ module.exports = {
             },
             // 异步加载主包代码配置
             asyncPack: {
-                // 框架类型，可选 'react' 或 'vue'
-                framework: 'react',
                 // 动态包名称前缀
                 dynamicPackageNamePrefix: 'dynamic-common',
                 // 动态包数量
