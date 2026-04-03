@@ -178,11 +178,11 @@ plugins: [
     customDynamicPackages: [
       {
         name: 'sync-style', 
-        test: (module) => /src[\\/]pages[\\/]sync-style[\\/]/.test(module.resource || ''),
+        test: (module) => /src[\\/]pages[\\/]sync-style[\\/]/.test(module.identifier()),
       },
       {
         name: 'async-style',
-        test: (module) => /src[\\/]pages[\\/]async-style[\\/]/.test(module.resource || ''),
+        test: (module) => /src[\\/]pages[\\/]async-style[\\/]/.test(module.identifier()),
         asyncStyle: true
       }
     ]

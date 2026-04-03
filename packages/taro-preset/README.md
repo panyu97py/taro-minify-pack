@@ -141,11 +141,15 @@ module.exports = {
                 dynamicPackageCount: 1,
                 // 自定义异步分包
                 customDynamicPackages: [
-                    {
-                        name: 'report',
-                        test: (module) => /src[\\/]pages[\\/]report[\\/]/.test(module.resource || ''),
-                        asyncStyle: true
-                    }
+                   {
+                      name: 'sync-style',
+                      test: (module) => /src[\\/]pages[\\/]sync-style[\\/]/.test(module.identifier()),
+                   },
+                   {
+                      name: 'async-style',
+                      test: (module) => /src[\\/]pages[\\/]async-style[\\/]/.test(module.identifier()),
+                      asyncStyle: true
+                   }
                 ]
             },
             // 自动设置 browserslist 配置
