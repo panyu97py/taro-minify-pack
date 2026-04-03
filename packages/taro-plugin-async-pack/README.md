@@ -200,8 +200,24 @@ plugins: [
 - 确认使用了 Webpack 5 编译器
 - 确保代码中使用了 `import()` 动态导入语法
 
-### 2. 异步组件的样式没有加载？
-- 检查是否有编译错误或警告信息
+### 2. 为什么样式文件没有异步？
+- 先检查 `customDynamicPackages[].test` 是否真的命中了目标模块；如果没有命中，样式会走默认同步合并逻辑，而不会进入对应自定义异步分包
+- 再检查该自定义分包的 `asyncStyle` 是否为 `true`；只有开启后才会额外生成 `inject-style` 组件，并触发异步样式注入
+- `module.identifier()` 代表 webpack 给当前模块生成的唯一标识，通常会包含 loader 链、查询参数和源文件绝对路径，比单纯看文件名更适合排查 `test` 是否命中
+- 排查时可以先在 `test` 回调里临时打印 `module.identifier()`，确认真实值后再收窄正则规则，例如只匹配其中稳定的源码路径片段：
+
+```js
+const customDynamicPackageConfig = {
+  name: 'async-style',
+  test: (module) => {
+    console.log(module.identifier())
+    return /src[\\/]pages[\\/]async-style[\\/]/.test(module.identifier())
+  },
+  asyncStyle: true
+}
+```
+
+- 如果打印出来的内容带有 `css-loader`、`sass-loader`、`?taro` 之类前缀或查询参数，通常是正常现象，优先匹配其中稳定的业务目录路径即可
 
 ### 3. 配置后编译失败？
 - 请检查配置选项是否正确
