@@ -2,6 +2,7 @@ import { Compiler, Compilation } from 'webpack'
 import path from 'path'
 import { AsyncPackOpts } from './types'
 import { RawSource } from 'webpack-sources'
+import { generateCustomDynamicPackageName } from './utils'
 
 export const PLUGIN_NAME = 'InjectStyleComponent'
 
@@ -28,10 +29,11 @@ export class InjectStyleComponentPlugin {
 
       compilation.hooks.processAssets.tap({ name: PLUGIN_NAME, stage }, (assets) => {
         const { customDynamicPackages } = this.opt
-        customDynamicPackages.forEach(customDynamicPackageItem => {
-          const { name: customDynamicPackageName, asyncStyle } = customDynamicPackageItem
 
-          if (!asyncStyle) return
+        customDynamicPackages.forEach(customDynamicPackageItem => {
+          if (!customDynamicPackageItem.asyncStyle) return
+
+          const customDynamicPackageName = generateCustomDynamicPackageName(this.opt, customDynamicPackageItem.name)
 
           const styleFileContent = Object.keys(assets).reduce((result, assetPath) => {
             if (!new RegExp(`^${customDynamicPackageName}\\/.*\\.wxss$`).test(assetPath)) return result

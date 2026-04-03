@@ -2,7 +2,7 @@ import { AsyncPackOpts } from './types'
 import type { PathData } from 'webpack'
 
 export const hashModBigInt = (hash: string, mod: number) => {
-  if (!hash) return 0
+  if (!hash || mod <= 0) return 0
   return Number(BigInt('0x' + hash) % BigInt(mod))
 }
 
@@ -16,6 +16,10 @@ export const generateKeyByOrder = (order: number) => {
 export const generateDefaultDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
   if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
   return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
+}
+
+export const generateCustomDynamicPackageName = (opt: AsyncPackOpts, packageName: string) => {
+  return `${opt.dynamicPackageNamePrefix}-${packageName}`
 }
 
 export const generateChunkFilename = (opt: AsyncPackOpts & { pathData: PathData, ext: string }) => {
@@ -35,7 +39,7 @@ export const isDefaultDynamicPackageAsset = (opt: AsyncPackOpts, assetName: stri
 }
 
 export const isCustomDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
-  const customDynamicPackageNames = opt.customDynamicPackages.map(item => item.name)
+  const customDynamicPackageNames = opt.customDynamicPackages.map(item => generateCustomDynamicPackageName(opt, item.name))
   if (!customDynamicPackageNames.length) return false
   return new RegExp(`^(${customDynamicPackageNames.join('|')})`).test(assetName)
 }
@@ -45,7 +49,7 @@ export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => 
 }
 
 export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
-  const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => item.name)
+  const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => `${opt.dynamicPackageNamePrefix}-${item.name}`)
   if (!asyncStylDynamicPackageNames.length) return false
   return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})`).test(assetName)
 }

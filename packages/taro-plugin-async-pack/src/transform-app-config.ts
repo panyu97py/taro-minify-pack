@@ -1,6 +1,6 @@
 import type { AsyncPackOpts } from './types'
 import { RawSource } from 'webpack-sources'
-import { generateDefaultDynamicPackageName } from './utils'
+import { generateCustomDynamicPackageName, generateDefaultDynamicPackageName } from './utils'
 
 interface Opts extends AsyncPackOpts {
   assets: Record<string, RawSource>
@@ -23,7 +23,7 @@ export const transformAppConfig = (opts: Opts) => {
   })
 
   const customDynamicPackagesConfig = customDynamicPackages.map(customDynamicPackageItem => {
-    return { root: customDynamicPackageItem.name, pages: [] }
+    return { root: generateCustomDynamicPackageName(opts, customDynamicPackageItem.name), pages: [] }
   })
 
   const asyncComponentPlaceholder = Object.keys(asyncComponents).reduce((result, item) => {

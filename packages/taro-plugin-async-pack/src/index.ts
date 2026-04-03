@@ -16,7 +16,7 @@ import { transformPagesWXml } from './transform-pages-wxml'
 import {
   generateChunkFilename,
   isSyncStyleDynamicPackageAsset, isDynamicPackageAsset,
-  matchSuffix
+  matchSuffix, generateCustomDynamicPackageName
 } from './utils'
 import { AsyncPackOpts } from './types'
 import { transformAppStylesheet } from './transform-app-stylesheet'
@@ -25,7 +25,7 @@ import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge
 export { AsyncPackOpts } from './types'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
-  dynamicPackageNamePrefix: 'dynamic-common',
+  dynamicPackageNamePrefix: 'dynamic-package',
   dynamicPackageCount: 1,
   customDynamicPackages: []
 }
@@ -47,9 +47,10 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
 
     const customPackageCacheGroups = finalOpts.customDynamicPackages.reduce((result, item) => {
       const { name: packageName, test } = item
-      const name = (module: Module) => `${packageName}/${module.buildInfo?.hash || module.id}`
+      const customDynamicPackageName = generateCustomDynamicPackageName(finalOpts, packageName)
+      const name = (module: Module) => `${customDynamicPackageName}/${module.buildInfo?.hash || module.id}`
       const cacheGroup = { chunks: 'async', test, name }
-      return { ...result, [packageName]: cacheGroup }
+      return { ...result, [customDynamicPackageName]: cacheGroup }
     }, {})
 
     chain.optimization.merge({
@@ -106,7 +107,8 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
     const asyncComponents = finalOpts.customDynamicPackages.filter(item => item.asyncStyle).reduce((result, item) => {
       const { name: packageName } = item
       const componentName = `${InjectStyleComponentName}-${packageName}`
-      return { ...result, [componentName]: `${packageName}/${InjectStyleComponentName}` }
+      const customDynamicPackageName = generateCustomDynamicPackageName(finalOpts, packageName)
+      return { ...result, [componentName]: `${customDynamicPackageName}/${InjectStyleComponentName}` }
     }, {})
 
     transformAppConfig({ ...finalOpts, assets, asyncComponents })
