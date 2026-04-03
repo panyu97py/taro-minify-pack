@@ -129,8 +129,11 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
    - 修改 `runtime.js` 输出，确保异步模块的`js`文件能通过`require.async`正确引入
 
 2. **样式处理**：
-   - 为每个异步分包生成样式组件
-   - 自动收集该分包下的所有样式文件并通过 `@import` 引入主包`app.wxss`同步引入
+   - 默认会先把未开启异步样式的分包样式合并成 `${dynamicPackageNamePrefix}.wxss`
+   - 编译 `app.wxss` 时自动补上一条 `@import './${dynamicPackageNamePrefix}.wxss'`，让这部分样式继续跟随主包同步加载
+   - 当 `customDynamicPackages[].asyncStyle = true` 时，会在对应自定义分包下额外生成一个 `inject-style` 组件
+   - 这个组件会收集该分包目录下的所有 `.wxss` 文件，并生成多个 `@import './xxx.wxss'` 引用，让样式跟随分包一起下发
+   - 构建结束后会继续改写 `app.json` 和页面 `wxml`：把 `inject-style` 注册到 `usingComponents` / `componentPlaceholder`，再把组件节点追加到页面模板中，借此触发该分包样式的异步加载
 
 3. **小程序配置修改**：
    - 自动修改 `app.json`，添加异步分包配置
@@ -142,7 +145,6 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 3. **Babel 配置**：需要正确配置 Babel 的 `dynamic-import-node` 选项
 4. **Webpack 版本**：仅支持 Webpack 5 编译器
 5. **分包数量**：根据项目实际情况配置 `dynamicPackageCount`，过多的分包可能会影响性能
-6. **版本要求**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
 
 ## 🔧 配置选项
 
