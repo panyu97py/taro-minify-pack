@@ -41,7 +41,7 @@ export const isDefaultDynamicPackageAsset = (opt: AsyncPackOpts, assetName: stri
 export const isCustomDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
   const customDynamicPackageNames = opt.customDynamicPackages.map(item => generateCustomDynamicPackageName(opt, item.name))
   if (!customDynamicPackageNames.length) return false
-  return new RegExp(`^(${customDynamicPackageNames.join('|')})`).test(assetName)
+  return new RegExp(`^(${customDynamicPackageNames.join('|')})/`).test(assetName)
 }
 
 export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
@@ -51,7 +51,7 @@ export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => 
 export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
   const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => `${opt.dynamicPackageNamePrefix}-${item.name}`)
   if (!asyncStylDynamicPackageNames.length) return false
-  return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})`).test(assetName)
+  return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})/`).test(assetName)
 }
 
 export const isSyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
