@@ -49,7 +49,8 @@ export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => 
 }
 
 export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
-  const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => `${opt.dynamicPackageNamePrefix}-${item.name}`)
+  const asyncStyleDynamicPackages = opt.customDynamicPackages.filter(item => item.asyncStyle)
+  const asyncStylDynamicPackageNames = asyncStyleDynamicPackages.map(item => generateCustomDynamicPackageName(opt, item.name))
   if (!asyncStylDynamicPackageNames.length) return false
   return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})/`).test(assetName)
 }
