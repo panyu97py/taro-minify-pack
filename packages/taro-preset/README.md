@@ -3,6 +3,7 @@
 > 预设配置，整合了 @taro-minify-pack 系列核心插件，提供一键式优化解决方案，简化 Taro 项目的性能优化配置。
 
 该预设包含以下插件：
+
 - `@taro-minify-pack/plugin-async-pack`: 异步加载主包代码，优化主包体积
 - `@taro-minify-pack/plugin-remote-assets`: 远程资源上传，优化主包体积
 - `@taro-minify-pack/plugin-cover-browserslist`: 根据微信小程序基础库版本自动设置 browserslist
@@ -57,7 +58,7 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/preset')
+const {aliOssUploadAdapter} = require('@taro-minify-pack/preset')
 
 module.exports = {
     compiler: {
@@ -104,7 +105,7 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
+const {aliOssUploadAdapter} = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
 
 module.exports = {
     compiler: {
@@ -134,12 +135,18 @@ module.exports = {
             },
             // 异步加载主包代码配置
             asyncPack: {
-                // 框架类型，可选 'react' 或 'vue'
-                framework: 'react',
                 // 动态包名称前缀
-                dynamicPackageNamePrefix: 'dynamic-common',
+                dynamicPackageNamePrefix: 'dynamic-package',
                 // 动态包数量
-                dynamicPackageCount: 1
+                dynamicPackageCount: 1,
+                // 自定义异步分包
+                customDynamicPackages: [
+                    {
+                        name: 'report',
+                        test: (module) => /src[\\/]pages[\\/]report[\\/]/.test(module.resource || ''),
+                        asyncStyle: true
+                    }
+                ]
             },
             // 自动设置 browserslist 配置
             coverBrowsersList: {
@@ -173,10 +180,11 @@ module.exports = {
 
 ### asyncPack 配置
 
-| 选项名                      | 类型       | 默认值                | 描述      |
-|--------------------------|----------|--------------------|---------|
-| dynamicPackageNamePrefix | `string` | `'dynamic-common'` | 动态包名称前缀 |
-| dynamicPackageCount      | `number` | `1`                | 动态包数量   |
+| 选项名                      | 类型                       | 默认值                 | 描述        |
+|--------------------------|--------------------------|---------------------|-----------|
+| dynamicPackageNamePrefix | `string`                 | `'dynamic-package'` | 动态包名称前缀   |
+| dynamicPackageCount      | `number`                 | `1`                 | 动态包数量     |
+| customDynamicPackages    | `CustomDynamicPackage[]` | `[]`                | 自定义异步分包配置 |
 
 ### remoteAssets 配置
 
@@ -222,8 +230,6 @@ module.exports = {
 6. **remote-assets 插件版本兼容性**：
     - **Taro < 4.0.10**：由于 `@tarojs/webpack5-runner` 不支持使用绝对路径注册 PostCSS 插件，在低版本 Taro 中直接使用本插件可能会导致插件无法生效。如需在低版本中使用，请参考官方 Pull Request( `https://github.com/NervJS/taro/pull/18683/files` ) 自行 patch。
     - **Taro ≥ 4.0.10**：可直接使用，无需额外处理。
-
-7. **async-pack 插件版本建议**：插件版本`0.0.5-alpha.x`尝试实现样式文件异步加载受微信机制影响存在无法优化的「闪屏样式丢失」,故`0.0.5`及以后版本不支持样式文件异步加载。
 
 ## 📄 许可证
 

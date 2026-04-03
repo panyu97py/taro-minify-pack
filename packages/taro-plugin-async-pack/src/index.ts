@@ -1,9 +1,23 @@
 import type { IPluginContext } from '@tarojs/service'
-import type { PathData } from 'webpack'
+import type { Module, PathData } from 'webpack'
 import { transformWebpackRuntime } from './transform-webpack-runtime'
-import { TransformOpt, TransformBeforeCompressionPlugin, PLUGIN_NAME as TransformBeforeCompressionPluginName } from './transform-before-compression-plugin'
+import {
+  TransformOpt,
+  TransformBeforeCompressionPlugin,
+  PLUGIN_NAME as TransformBeforeCompressionPluginName
+} from './transform-before-compression-plugin'
+import {
+  InjectStyleComponentPlugin,
+  PLUGIN_NAME as InjectStyleComponentPluginName,
+  InjectStyleComponentName
+} from './inject-style-component'
 import { transformAppConfig } from './transform-app-config'
-import { generateDynamicPackageName, hashModBigInt, isDynamicPackageName, isDynamicPackageWXssAsset } from './utils'
+import { transformPagesWXml } from './transform-pages-wxml'
+import {
+  generateChunkFilename,
+  isSyncStyleDynamicPackageAsset, isDynamicPackageAsset,
+  matchSuffix, generateCustomDynamicPackageName
+} from './utils'
 import { AsyncPackOpts } from './types'
 import { transformAppStylesheet } from './transform-app-stylesheet'
 import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge-output'
@@ -11,11 +25,12 @@ import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge
 export { AsyncPackOpts } from './types'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
-  dynamicPackageNamePrefix: 'dynamic-common',
-  dynamicPackageCount: 1
+  dynamicPackageNamePrefix: 'dynamic-package',
+  dynamicPackageCount: 1,
+  customDynamicPackages: []
 }
 
-export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
+export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
   const finalOpts = { ...dynamicPackOptsDefaultOpt, ...pluginOpts }
 
   if (process.env.TARO_ENV !== 'weapp') return
@@ -30,16 +45,19 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     const newVendorsChunks = vendors ? { ...vendors, chunks: 'initial' } : vendors
 
-    const generateChunkFilename = (pathData:PathData, ext:string) => {
-      const { chunk } = pathData
-      const order = hashModBigInt(chunk?.hash || '', finalOpts.dynamicPackageCount)
-      return `${generateDynamicPackageName({ ...finalOpts, order })}/[chunkhash]${ext}`
-    }
+    const customPackageCacheGroups = finalOpts.customDynamicPackages.reduce((result, item) => {
+      const { name: packageName, test } = item
+      const customDynamicPackageName = generateCustomDynamicPackageName(finalOpts, packageName)
+      const name = (module: Module) => `${customDynamicPackageName}/${module.buildInfo?.hash || module.id}`
+      const cacheGroup = { chunks: 'async', test, name }
+      return { ...result, [customDynamicPackageName]: cacheGroup }
+    }, {})
 
     chain.optimization.merge({
       splitChunks: {
         ...existingSplitChunks,
         cacheGroups: {
+          ...customPackageCacheGroups,
           ...existingSplitChunks.cacheGroups,
           common: newCommonChunks,
           vendors: newVendorsChunks
@@ -49,7 +67,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
 
     chain.merge({
       output: {
-        chunkFilename: (pathData:PathData) => generateChunkFilename(pathData, '.js'),
+        chunkFilename: (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.js' }),
         path: ctx.paths.outputPath,
         clean: true
       }
@@ -58,7 +76,7 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
     chain.plugin('miniCssExtractPlugin')
       .tap((args) => {
         const [options] = args
-        const chunkFilename = (pathData:PathData) => generateChunkFilename(pathData, '.wxss')
+        const chunkFilename = (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.wxss' })
         return [{ ...options, chunkFilename }]
       })
 
@@ -74,16 +92,27 @@ export default (ctx: IPluginContext, pluginOpts: AsyncPackOpts) => {
     }])
 
     chain.plugin(MergeOutputPluginName).use(MergeOutputPlugin, [{
-      test: (assetName: string) => isDynamicPackageWXssAsset(finalOpts.dynamicPackageNamePrefix, assetName),
+      test: (assetName: string) => matchSuffix('wxss', assetName) && isSyncStyleDynamicPackageAsset(finalOpts, assetName),
       outputFile: `${finalOpts.dynamicPackageNamePrefix}.wxss`
     }])
+
+    chain.plugin(InjectStyleComponentPluginName).use(InjectStyleComponentPlugin, [finalOpts])
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
-    const hasDynamicModule = Object.keys(assets).some((key) => isDynamicPackageName(finalOpts.dynamicPackageNamePrefix, key))
+    const hasDynamicModule = Object.keys(assets).some((key) => isDynamicPackageAsset(finalOpts, key))
 
     if (!hasDynamicModule) return
 
-    transformAppConfig({ ...finalOpts, assets })
+    const asyncComponents = finalOpts.customDynamicPackages.filter(item => item.asyncStyle).reduce((result, item) => {
+      const { name: packageName } = item
+      const componentName = `${InjectStyleComponentName}-${packageName}`
+      const customDynamicPackageName = generateCustomDynamicPackageName(finalOpts, packageName)
+      return { ...result, [componentName]: `${customDynamicPackageName}/${InjectStyleComponentName}` }
+    }, {})
+
+    transformAppConfig({ ...finalOpts, assets, asyncComponents })
+
+    transformPagesWXml({ assets, asyncComponents })
   })
 }
