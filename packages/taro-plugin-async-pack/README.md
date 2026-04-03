@@ -57,10 +57,19 @@ module.exports = {
     },
     plugins: [
         ['@taro-minify-pack/plugin-async-pack', {
-            // 异步分包名前缀，默认为 'dynamic-common'
-            dynamicPackageNamePrefix: 'dynamic-common',
+            // 异步分包名前缀，默认为 'dynamic-package'
+            dynamicPackageNamePrefix: 'dynamic-package',
             // 异步分包数量，默认为 1
-            dynamicPackageCount: 2
+            dynamicPackageCount: 2,
+            // 自定义异步分包，最终输出目录格式为 `${dynamicPackageNamePrefix}-${name}`
+            customDynamicPackages: [
+                {
+                    name: 'report',
+                    test: (module) => /src[\\/]pages[\\/]report[\\/]/.test(module.resource || ''),
+                    // 异步分包是否异步加载样式，默认为 false，设置为 true 后，该分包下的样式文件会被异步加载（由于异步加载样式存在延时时机不可控，建议仅用于非页面首屏组件）
+                    asyncStyle: true
+                }
+            ]
         }],
     ],
 };
@@ -137,10 +146,49 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 
 ## 🔧 配置选项
 
-| 选项名                        | 类型       | 默认值                | 描述       |
-|----------------------------|----------|--------------------|----------|
-| `dynamicPackageNamePrefix` | `string` | `'dynamic-common'` | 异步分包名称前缀 |
-| `dynamicPackageCount`      | `number` | `1`                | 异步分包数量   |
+| 选项名                        | 类型                       | 默认值                | 描述        |
+|----------------------------|--------------------------|--------------------|-----------|
+| `dynamicPackageNamePrefix` | `string`                 | `'dynamic-package'` | 异步分包名称前缀  |
+| `dynamicPackageCount`      | `number`                 | `1`                | 异步分包数量    |
+| `customDynamicPackages`    | `CustomDynamicPackage[]` | `[]`               | 自定义异步分包配置 |
+
+### `customDynamicPackages` 配置说明
+
+```ts
+interface CustomDynamicPackage {
+  name: string
+  test: string | RegExp | ((module, context) => boolean)
+  asyncStyle?: boolean
+}
+```
+
+- `name`：自定义异步分包标识，最终会拼成 `${dynamicPackageNamePrefix}-${name}`，例如 `dynamic-package-report`
+- `test`：直接透传给 webpack `splitChunks.cacheGroups[packageName].test`，命中的异步模块会被拆到该分包
+- `asyncStyle`：默认 `false`。开启后会为该分包额外生成 `inject-style` 组件，并自动注入到页面模板中，让该分包内样式跟随组件异步加载
+
+### `customDynamicPackages` 配置示例
+
+```js
+plugins: [
+  ['@taro-minify-pack/plugin-async-pack', {
+    dynamicPackageNamePrefix: 'dynamic-package',
+    dynamicPackageCount: 2,
+    customDynamicPackages: [
+      {
+        name: 'vendors',
+        test: /[\\/]node_modules[\\/](lodash-es|dayjs)[\\/]/
+      },
+      {
+        name: 'report',
+        test: (module) => /src[\\/]pages[\\/]report[\\/]/.test(module.resource || ''),
+        asyncStyle: true
+      }
+    ]
+  }]
+]
+```
+
+上述配置会额外生成 `dynamic-package-vendors` 和 `dynamic-package-report` 两个异步分包；其中 `report` 分包会同时产出 `inject-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
 
 ## 🤝 常见问题
 
@@ -176,4 +224,3 @@ MIT License
 欢迎提交 Issue 和 Pull Request！
 
 > 该插件是 @taro-minify-pack 系列插件的一部分，致力于提供完整的 Taro 项目优化解决方案。
-
