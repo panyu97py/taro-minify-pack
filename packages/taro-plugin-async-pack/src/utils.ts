@@ -14,7 +14,7 @@ export const generateKeyByOrder = (order: number) => {
 }
 
 export const generateDefaultDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
-  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
+  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return `${opt.dynamicPackageNamePrefix}-default`
   return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
 }
 
@@ -49,7 +49,8 @@ export const isDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => 
 }
 
 export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
-  const asyncStylDynamicPackageNames = opt.customDynamicPackages.filter(item => item.asyncStyle).map(item => `${opt.dynamicPackageNamePrefix}-${item.name}`)
+  const asyncStyleDynamicPackages = opt.customDynamicPackages.filter(item => item.asyncStyle)
+  const asyncStylDynamicPackageNames = asyncStyleDynamicPackages.map(item => generateCustomDynamicPackageName(opt, item.name))
   if (!asyncStylDynamicPackageNames.length) return false
   return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})/`).test(assetName)
 }
