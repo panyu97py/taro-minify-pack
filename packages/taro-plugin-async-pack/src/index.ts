@@ -15,7 +15,7 @@ import { transformAppConfig } from './transform-app-config'
 import { transformPagesWXml } from './transform-pages-wxml'
 import {
   generateChunkFilename,
-  isAsyncStyleDynamicPackageAsset, isDynamicPackageAsset,
+  isSyncStyleDynamicPackageAsset, isDynamicPackageAsset,
   matchSuffix
 } from './utils'
 import { AsyncPackOpts } from './types'
@@ -91,7 +91,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
     }])
 
     chain.plugin(MergeOutputPluginName).use(MergeOutputPlugin, [{
-      test: (assetName: string) => matchSuffix('wxss', assetName) && !isAsyncStyleDynamicPackageAsset(finalOpts, assetName),
+      test: (assetName: string) => matchSuffix('wxss', assetName) && isSyncStyleDynamicPackageAsset(finalOpts, assetName),
       outputFile: `${finalOpts.dynamicPackageNamePrefix}.wxss`
     }])
 

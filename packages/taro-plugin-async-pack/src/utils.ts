@@ -50,6 +50,10 @@ export const isAsyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: s
   return new RegExp(`^(${asyncStylDynamicPackageNames.join('|')})`).test(assetName)
 }
 
+export const isSyncStyleDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  return isDynamicPackageAsset(opt, assetName) && !isAsyncStyleDynamicPackageAsset(opt, assetName)
+}
+
 export const matchSuffix = (suffix: string, assetName: string) => {
   return new RegExp(`\\.${suffix}$`).test(assetName)
 }
