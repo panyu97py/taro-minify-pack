@@ -14,7 +14,7 @@ export const generateKeyByOrder = (order: number) => {
 }
 
 export const generateDefaultDynamicPackageName = (opt: AsyncPackOpts & { order?: number }) => {
-  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return opt.dynamicPackageNamePrefix
+  if (!isNumber(opt.order) || opt.dynamicPackageCount <= 1) return `${opt.dynamicPackageNamePrefix}-default`
   return `${opt.dynamicPackageNamePrefix}-${generateKeyByOrder(opt.order!)}`
 }
 
