@@ -177,12 +177,12 @@ plugins: [
     dynamicPackageCount: 2,
     customDynamicPackages: [
       {
-        name: 'vendors',
-        test: /[\\/]node_modules[\\/](lodash-es|dayjs)[\\/]/
+        name: 'sync-style', 
+        test: (module) => /src[\\/]pages[\\/]sync-style[\\/]/.test(module.resource || ''),
       },
       {
-        name: 'report',
-        test: (module) => /src[\\/]pages[\\/]report[\\/]/.test(module.resource || ''),
+        name: 'async-style',
+        test: (module) => /src[\\/]pages[\\/]async-style[\\/]/.test(module.resource || ''),
         asyncStyle: true
       }
     ]
@@ -190,7 +190,7 @@ plugins: [
 ]
 ```
 
-上述配置会额外生成 `dynamic-package-vendors` 和 `dynamic-package-report` 两个异步分包；其中 `report` 分包会同时产出 `inject-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
+上述配置会额外生成 `dynamic-package-sync-style` 和 `dynamic-package-async-style` 两个异步分包；其中 `async-style` 分包会同时产出 `inject-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
 
 ## 🤝 常见问题
 
