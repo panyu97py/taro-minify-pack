@@ -34,7 +34,7 @@ export const isNumber = (val: any) => {
 }
 
 export const isDefaultDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
-  const dynamicModuleRegExp = new RegExp(`^${opt.dynamicPackageNamePrefix}(?:-[a-z]{2})?/`)
+  const dynamicModuleRegExp = new RegExp(`^${opt.dynamicPackageNamePrefix}(?:-([a-z]{2}|default))?/`)
   return dynamicModuleRegExp.test(assetName)
 }
 

@@ -12,20 +12,20 @@ export interface PluginOpt {
     transform: (opt: TransformOpt) => string;
 }
 
-export const PLUGIN_NAME = 'TransformBeforeCompression'
-
 export class TransformBeforeCompressionPlugin {
   private readonly opt: PluginOpt
+
+  public static readonly pluginName = 'TransformBeforeCompression'
 
   constructor (opt: PluginOpt) {
     this.opt = opt
   }
 
   apply (compiler: webpack.Compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation: webpack.Compilation) => {
+    compiler.hooks.compilation.tap(TransformBeforeCompressionPlugin.pluginName, (compilation: webpack.Compilation) => {
       const stage = webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE // 压缩前
 
-      compilation.hooks.processAssets.tap({ name: PLUGIN_NAME, stage }, (assets) => {
+      compilation.hooks.processAssets.tap({ name: TransformBeforeCompressionPlugin.pluginName, stage }, (assets) => {
         const { test, transform } = this.opt
 
         const assetNames = Object.keys(assets)
