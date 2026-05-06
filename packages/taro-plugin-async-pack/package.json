@@ -24,6 +24,7 @@
     "@babel/template": "^7.26.9",
     "@babel/traverse": "^7.26.10",
     "@babel/types": "^7.26.10",
+    "tapable": "^2.3.3",
     "webpack": "^5.98.0",
     "webpack-sources": "^3.2.3"
   },

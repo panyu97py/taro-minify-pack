@@ -3,14 +3,9 @@ import type { Module, PathData } from 'webpack'
 import { transformWebpackRuntime } from './transform-webpack-runtime'
 import {
   TransformOpt,
-  TransformBeforeCompressionPlugin,
-  PLUGIN_NAME as TransformBeforeCompressionPluginName
+  TransformBeforeCompressionPlugin
 } from './transform-before-compression-plugin'
-import {
-  InjectStyleComponentPlugin,
-  PLUGIN_NAME as InjectStyleComponentPluginName,
-  InjectStyleComponentName
-} from './inject-style-component'
+import { InjectDynamicStylePlugin } from './inject-dynamic-style'
 import { transformAppConfig } from './transform-app-config'
 import { transformPagesWXml } from './transform-pages-wxml'
 import {
@@ -20,9 +15,10 @@ import {
 } from './utils'
 import { AsyncPackOpts } from './types'
 import { transformAppStylesheet } from './transform-app-stylesheet'
-import { MergeOutputPlugin, PLUGIN_NAME as MergeOutputPluginName } from './merge-output'
+import { MergeOutputPlugin } from './merge-output'
 
-export { AsyncPackOpts } from './types'
+export * from './types'
+export * from './inject-dynamic-style'
 
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
   dynamicPackageNamePrefix: 'dynamic-package',
@@ -80,7 +76,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
         return [{ ...options, chunkFilename }]
       })
 
-    chain.plugin(TransformBeforeCompressionPluginName).use(TransformBeforeCompressionPlugin, [{
+    chain.plugin(TransformBeforeCompressionPlugin.pluginName).use(TransformBeforeCompressionPlugin, [{
       test: /^(runtime\.js|app\.wxss)$/,
       transform: (opt: TransformOpt) => {
         const { source, assetName, assets } = opt
@@ -91,12 +87,16 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
       }
     }])
 
-    chain.plugin(MergeOutputPluginName).use(MergeOutputPlugin, [{
-      test: (assetName: string) => matchSuffix('wxss', assetName) && isSyncStyleDynamicPackageAsset(finalOpts, assetName),
+    chain.plugin(MergeOutputPlugin.pluginName).use(MergeOutputPlugin, [{
+      test: (assetName: string) => {
+        const isStyleAsset = matchSuffix('wxss', assetName)
+        const isInjectDynamicStyleAsset = new RegExp(`${InjectDynamicStylePlugin.componentName}\\.wxss$`).test(assetName)
+        return isStyleAsset && !isInjectDynamicStyleAsset && isSyncStyleDynamicPackageAsset(finalOpts, assetName)
+      },
       outputFile: `${finalOpts.dynamicPackageNamePrefix}.wxss`
     }])
 
-    chain.plugin(InjectStyleComponentPluginName).use(InjectStyleComponentPlugin, [finalOpts])
+    chain.plugin(InjectDynamicStylePlugin.pluginName).use(InjectDynamicStylePlugin, [finalOpts])
   })
 
   ctx.modifyBuildAssets(({ assets }) => {
@@ -104,11 +104,12 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
 
     if (!hasDynamicModule) return
 
-    const asyncComponents = finalOpts.customDynamicPackages.filter(item => item.asyncStyle).reduce((result, item) => {
-      const { name: packageName } = item
-      const componentName = `${InjectStyleComponentName}-${packageName}`
-      const customDynamicPackageName = generateCustomDynamicPackageName(finalOpts, packageName)
-      return { ...result, [componentName]: `${customDynamicPackageName}/${InjectStyleComponentName}` }
+    const asyncComponents = Object.keys(assets).reduce((result, assetName) => {
+      const regExp = new RegExp(`^(${finalOpts.dynamicPackageNamePrefix}-([^/]+)/${InjectDynamicStylePlugin.componentName})\\.json$`)
+      const [_, fullPathWithoutExt, key] = assetName.match(regExp) || []
+      if (!isDynamicPackageAsset(finalOpts, assetName) || !key) return result
+      const componentName = `${InjectDynamicStylePlugin.componentName}-${key}`
+      return { ...result, [componentName]: fullPathWithoutExt }
     }, {})
 
     transformAppConfig({ ...finalOpts, assets, asyncComponents })
