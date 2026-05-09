@@ -153,6 +153,8 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 | `dynamicPackageNamePrefix` | `string`                 | `'dynamic-package'` | 异步分包名称前缀  |
 | `dynamicPackageCount`      | `number`                 | `1`                | 异步分包数量    |
 | `customDynamicPackages`    | `CustomDynamicPackage[]` | `[]`               | 自定义异步分包配置 |
+| `onlyCustomDynamicPackages` | `boolean`               | `false`            | 是否只处理命中自定义异步分包的模块 |
+| `strictCustomDynamicPackages` | `boolean`             | `false`            | 开启 `onlyCustomDynamicPackages` 后，未命中自定义异步分包的异步模块是否直接构建失败 |
 
 ### `customDynamicPackages` 配置说明
 
@@ -191,6 +193,37 @@ plugins: [
 ```
 
 上述配置会额外生成 `dynamic-package-sync-style` 和 `dynamic-package-async-style` 两个异步分包；其中 `async-style` 分包会同时产出 `inject-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
+
+### `onlyCustomDynamicPackages`
+
+是否只处理命中 `customDynamicPackages` 的异步模块。
+
+默认值：`false`
+
+当设置为 `true` 时，插件不会生成 `dynamic-package-default` 这类默认异步分包，也不会把未命中的 `import()` chunk 自动移动到默认异步分包中。未命中的异步 chunk 会继续使用原始 webpack / Taro 的 `chunkFilename` 与加载逻辑。
+
+这个配置适合只想异步加载少量指定 SDK、组件或低频功能模块的项目，例如地图 SDK、风控 SDK、埋点 SDK、直播 SDK 或编辑器模块。
+
+```js
+plugins: [
+  ['@taro-minify-pack/plugin-async-pack', {
+    dynamicPackageNamePrefix: 'dynamic-package',
+    onlyCustomDynamicPackages: true,
+    customDynamicPackages: [
+      {
+        name: 'heavy-sdk',
+        test: (module) => /node_modules[\\/]heavy-sdk/.test(module.identifier())
+      }
+    ]
+  }]
+]
+```
+
+### `strictCustomDynamicPackages`
+
+默认值：`false`
+
+只有同时开启 `onlyCustomDynamicPackages` 时该配置才有意义。设置为 `true` 后，一旦存在未命中 `customDynamicPackages` 的异步 chunk，插件会直接让构建失败，并提示该 chunk 没有配置到自定义异步分包中。
 
 ## 🤝 常见问题
 

@@ -1,6 +1,8 @@
 import { AsyncPackOpts } from './types'
 import type { PathData } from 'webpack'
 
+type ChunkFilename = string | ((pathData: PathData) => string)
+
 export const hashModBigInt = (hash: string, mod: number) => {
   if (!hash || mod <= 0) return 0
   return Number(BigInt('0x' + hash) % BigInt(mod))
@@ -22,8 +24,26 @@ export const generateCustomDynamicPackageName = (opt: AsyncPackOpts, packageName
   return `${opt.dynamicPackageNamePrefix}-${packageName}`
 }
 
-export const generateChunkFilename = (opt: AsyncPackOpts & { pathData: PathData, ext: string }) => {
+const generateOriginalChunkFilename = (opt: { pathData: PathData, ext: string, originalChunkFilename?: ChunkFilename }) => {
+  if (typeof opt.originalChunkFilename === 'function') return opt.originalChunkFilename(opt.pathData)
+  if (typeof opt.originalChunkFilename === 'string') return opt.originalChunkFilename
+  return `[id]${opt.ext}`
+}
+
+export const generateChunkFilename = (opt: AsyncPackOpts & { pathData: PathData, ext: string, originalChunkFilename?: ChunkFilename }) => {
   const { chunk } = opt.pathData
+  const chunkName = chunk?.name
+
+  if (opt.onlyCustomDynamicPackages) {
+    if (chunkName && isCustomDynamicPackageAsset(opt, `${chunkName}${opt.ext}`)) return `${chunkName}${opt.ext}`
+
+    if (opt.strictCustomDynamicPackages) {
+      throw new Error(`[plugin-async-pack] unmatched async chunk${chunkName ? ` "${chunkName}"` : ''} is not configured in customDynamicPackages`)
+    }
+
+    return generateOriginalChunkFilename(opt)
+  }
+
   if (chunk?.name) return `${chunk?.name}${opt.ext}`
   const order = hashModBigInt(chunk?.hash || '', opt.dynamicPackageCount)
   return `${generateDefaultDynamicPackageName({ ...opt, order })}/[chunkhash]${opt.ext}`
@@ -34,6 +54,7 @@ export const isNumber = (val: any) => {
 }
 
 export const isDefaultDynamicPackageAsset = (opt: AsyncPackOpts, assetName: string) => {
+  if (opt.onlyCustomDynamicPackages) return false
   const dynamicModuleRegExp = new RegExp(`^${opt.dynamicPackageNamePrefix}(?:-([a-z]{2}|default))?/`)
   return dynamicModuleRegExp.test(assetName)
 }

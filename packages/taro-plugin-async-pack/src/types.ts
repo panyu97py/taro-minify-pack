@@ -16,6 +16,8 @@ export interface AsyncPackOpts {
     dynamicPackageNamePrefix: string;
     dynamicPackageCount: number;
     customDynamicPackages: CustomDynamicPackage[]
+    onlyCustomDynamicPackages?: boolean
+    strictCustomDynamicPackages?: boolean
 }
 
 export type CompilationAssets = Record<string, Source>;

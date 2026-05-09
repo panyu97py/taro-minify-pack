@@ -189,6 +189,8 @@ module.exports = {
 | dynamicPackageNamePrefix | `string`                 | `'dynamic-package'` | 动态包名称前缀   |
 | dynamicPackageCount      | `number`                 | `1`                 | 动态包数量     |
 | customDynamicPackages    | `CustomDynamicPackage[]` | `[]`                | 自定义异步分包配置 |
+| onlyCustomDynamicPackages | `boolean`               | `false`             | 是否只处理命中自定义异步分包的模块 |
+| strictCustomDynamicPackages | `boolean`             | `false`             | 开启 `onlyCustomDynamicPackages` 后，未命中的异步模块是否直接构建失败 |
 
 ### remoteAssets 配置
 

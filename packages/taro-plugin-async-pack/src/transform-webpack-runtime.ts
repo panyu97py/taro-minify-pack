@@ -54,6 +54,30 @@ const webpackLoadDynamicModuleTemplate = `
   };
 `
 
+const webpackLoadDynamicModuleFallbackTemplate = `
+  __webpack_require__.l = function (dynamicModulePath, done, key, chunkId) {
+    var loadDynamicModuleFn = loadDynamicModuleFnMap[dynamicModulePath];
+    if (!loadDynamicModuleFn) return originLoadScript(dynamicModulePath, done, key, chunkId);
+
+    if (inProgress[dynamicModulePath]) {
+      inProgress[dynamicModulePath].push(done);
+      return;
+    }
+
+    const target = { src: dynamicModulePath };
+
+    if (loadedDynamicModules[dynamicModulePath]) return done({ type: 'loaded', target });
+
+    promiseRetry(function () {
+      return loadDynamicModuleFn()
+    }).then(function () {
+      return done({ type: 'loaded', target })
+    }).catch(function () {
+      return done({ type:'error', target })
+    });
+  };
+`
+
 const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<AssignmentExpression>, opts: Opts) => {
   const { left, right } = assignmentExpressionNodePath.node || {}
 
@@ -85,11 +109,18 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
     return `var loadDynamicModuleFnMap = {${dynamicAssetsRequireTempCode.join(',')}}`
   })()
 
-  const templateCodeAst = template.ast(webpackLoadDynamicModuleTemplate) as Statement
+  const templateCodeAst = template.ast(opts.onlyCustomDynamicPackages ? webpackLoadDynamicModuleFallbackTemplate : webpackLoadDynamicModuleTemplate) as Statement
 
   const loadDynamicModuleFnMapAst = template.ast(loadDynamicModuleFnMapCode)
 
   const templateCodeDepAst = template.ast(webpackLoadDynamicModuleTemplateDep)
+
+  if (opts.onlyCustomDynamicPackages) {
+    const originLoadScriptAst = types.variableDeclaration('var', [
+      types.variableDeclarator(types.identifier('originLoadScript'), types.cloneNode(right))
+    ])
+    assignmentExpressionNodePath.insertBefore(originLoadScriptAst)
+  }
 
   assignmentExpressionNodePath.replaceWith(templateCodeAst)
 

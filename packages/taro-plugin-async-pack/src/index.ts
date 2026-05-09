@@ -23,7 +23,9 @@ export * from './inject-dynamic-style'
 const dynamicPackOptsDefaultOpt: AsyncPackOpts = {
   dynamicPackageNamePrefix: 'dynamic-package',
   dynamicPackageCount: 1,
-  customDynamicPackages: []
+  customDynamicPackages: [],
+  onlyCustomDynamicPackages: false,
+  strictCustomDynamicPackages: false
 }
 
 export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
@@ -34,6 +36,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
   ctx.modifyWebpackChain(({ chain }) => {
     // 动态获取现有的 splitChunks 配置
     const existingSplitChunks = chain.optimization.get('splitChunks') || {}
+    const originalJsChunkFilename = chain.output.get('chunkFilename')
 
     const { common, vendors } = existingSplitChunks.cacheGroups
 
@@ -63,7 +66,12 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
 
     chain.merge({
       output: {
-        chunkFilename: (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.js' }),
+        chunkFilename: (pathData: PathData) => generateChunkFilename({
+          ...finalOpts,
+          pathData,
+          ext: '.js',
+          originalChunkFilename: originalJsChunkFilename
+        }),
         path: ctx.paths.outputPath,
         clean: true
       }
@@ -72,7 +80,13 @@ export default (ctx: IPluginContext, pluginOpts: Partial<AsyncPackOpts>) => {
     chain.plugin('miniCssExtractPlugin')
       .tap((args) => {
         const [options] = args
-        const chunkFilename = (pathData: PathData) => generateChunkFilename({ ...finalOpts, pathData, ext: '.wxss' })
+        const originalStyleChunkFilename = options.chunkFilename
+        const chunkFilename = (pathData: PathData) => generateChunkFilename({
+          ...finalOpts,
+          pathData,
+          ext: '.wxss',
+          originalChunkFilename: originalStyleChunkFilename
+        })
         return [{ ...options, chunkFilename }]
       })
 

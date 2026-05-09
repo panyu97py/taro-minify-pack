@@ -18,7 +18,7 @@ export const transformAppConfig = (opts: Opts) => {
 
   const finalSubPackages = subPackages || subpackages || []
 
-  const defaultDynamicPackagesConfig = new Array(dynamicPackageCount).fill(null).map((_, order) => {
+  const defaultDynamicPackagesConfig = opts.onlyCustomDynamicPackages ? [] : new Array(dynamicPackageCount).fill(null).map((_, order) => {
     return { root: generateDefaultDynamicPackageName({ ...opts, order }), pages: [] }
   })
 
