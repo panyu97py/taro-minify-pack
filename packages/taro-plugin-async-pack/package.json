@@ -17,6 +17,9 @@
   },
   "author": "yu.pan",
   "license": "MIT",
+  "peerDependencies": {
+    "webpack": "^5.0.0"
+  },
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/generator": "^7.26.10",
@@ -25,7 +28,6 @@
     "@babel/traverse": "^7.26.10",
     "@babel/types": "^7.26.10",
     "tapable": "^2.3.3",
-    "webpack": "^5.98.0",
     "webpack-sources": "^3.2.3"
   },
   "devDependencies": {
@@ -45,6 +47,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.3",
     "eslint-plugin-promise": "^6.0.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "webpack": "^5.0.0"
   }
 }

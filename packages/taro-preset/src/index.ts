@@ -4,6 +4,7 @@ import type{ CoverBrowsersListOpt } from '@taro-minify-pack/plugin-cover-browser
 import type { BundleAnalyzerOpt } from '@taro-minify-pack/plugin-bundle-analyzer'
 
 export * from '@taro-minify-pack/plugin-remote-assets'
+export * from '@taro-minify-pack/plugin-async-pack'
 
 interface Opt {
     asyncPack?: AsyncPackOpts | boolean
