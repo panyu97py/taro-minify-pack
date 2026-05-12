@@ -1,4 +1,4 @@
-import { Compiler, Compilation } from 'webpack'
+import webpack, { Compiler, Compilation } from 'webpack'
 
 interface MergeOutputOpt {
     test: (assetName: string) => boolean,
@@ -26,7 +26,7 @@ export class MergeOutputPlugin {
           return result + code + '\n'
         }, '')
 
-        compilation.emitAsset(this.opts.outputFile, new compiler.webpack.sources.RawSource(mergedResult))
+        compilation.emitAsset(this.opts.outputFile, new webpack.sources.RawSource(mergedResult))
       })
     })
   }
