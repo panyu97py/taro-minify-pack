@@ -48,10 +48,10 @@ export class InjectDynamicStylePlugin {
   injectDynamicStyleCode (compilation: Compilation, opt:InjectDynamicStyleOpt) {
     const { key, stylesheet } = opt
     const componentPath = `${key}/${InjectDynamicStylePlugin.componentName}`
-    compilation.assets[`${componentPath}.wxss`] = new RawSource(stylesheet)
-    compilation.assets[`${componentPath}.wxml`] = new RawSource(this.WXmlContent)
-    compilation.assets[`${componentPath}.json`] = new RawSource(this.JsonContent)
-    compilation.assets[`${componentPath}.js`] = new RawSource(this.JsContent)
+    compilation.emitAsset(`${componentPath}.wxss`, new RawSource(stylesheet))
+    compilation.emitAsset(`${componentPath}.wxml`, new RawSource(this.WXmlContent))
+    compilation.emitAsset(`${componentPath}.json`, new RawSource(this.JsonContent))
+    compilation.emitAsset(`${componentPath}.js`, new RawSource(this.JsContent))
   }
 
   apply (compiler: Compiler) {
