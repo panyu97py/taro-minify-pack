@@ -22,11 +22,11 @@ export class MergeOutputPlugin {
         const mergedResult = Object.keys(assets).reduce((result, item) => {
           if (!this.opts.test(item)) return result
           const code = assets[item].source().toString()
-          delete assets[item]
+          compilation.deleteAsset(item)
           return result + code + '\n'
         }, '')
 
-        compilation.assets[this.opts.outputFile!] = new compiler.webpack.sources.RawSource(mergedResult)
+        compilation.emitAsset(this.opts.outputFile, new compiler.webpack.sources.RawSource(mergedResult))
       })
     })
   }
