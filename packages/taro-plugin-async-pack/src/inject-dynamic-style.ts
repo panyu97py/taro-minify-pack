@@ -1,7 +1,6 @@
-import { Compiler, Compilation } from 'webpack'
+import webpack, { Compiler, Compilation } from 'webpack'
 import path from 'path'
 import { AsyncPackOpts } from './types'
-import { RawSource } from 'webpack-sources'
 import { generateCustomDynamicPackageName } from './utils'
 import { SyncHook } from 'tapable'
 
@@ -48,10 +47,10 @@ export class InjectDynamicStylePlugin {
   injectDynamicStyleCode (compilation: Compilation, opt:InjectDynamicStyleOpt) {
     const { key, stylesheet } = opt
     const componentPath = `${key}/${InjectDynamicStylePlugin.componentName}`
-    compilation.emitAsset(`${componentPath}.wxss`, new RawSource(stylesheet))
-    compilation.emitAsset(`${componentPath}.wxml`, new RawSource(this.WXmlContent))
-    compilation.emitAsset(`${componentPath}.json`, new RawSource(this.JsonContent))
-    compilation.emitAsset(`${componentPath}.js`, new RawSource(this.JsContent))
+    compilation.emitAsset(`${componentPath}.wxss`, new webpack.sources.RawSource(stylesheet))
+    compilation.emitAsset(`${componentPath}.wxml`, new webpack.sources.RawSource(this.WXmlContent))
+    compilation.emitAsset(`${componentPath}.json`, new webpack.sources.RawSource(this.JsonContent))
+    compilation.emitAsset(`${componentPath}.js`, new webpack.sources.RawSource(this.JsContent))
   }
 
   apply (compiler: Compiler) {
