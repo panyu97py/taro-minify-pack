@@ -1,5 +1,5 @@
 import { defineUploaderAdapter } from './define-adapter'
-import { LocalAssetInfo } from '@/types'
+import { LocalAssetInfo } from '../types'
 import AliOss from 'ali-oss'
 
 export interface AliOssUploadAdapterOpt extends AliOss.Options {

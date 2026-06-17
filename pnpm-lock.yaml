@@ -271,6 +271,52 @@ importers:
         specifier: 5.91.0
         version: 5.91.0(@swc/core@1.3.96)
 
+  packages/helper:
+    dependencies:
+      '@supercharge/promise-pool':
+        specifier: ^3.2.0
+        version: 3.2.0
+      ali-oss:
+        specifier: ^6.23.0
+        version: 6.23.0
+      md5:
+        specifier: ^2.3.0
+        version: 2.3.0
+    devDependencies:
+      '@types/ali-oss':
+        specifier: ^6.16.13
+        version: 6.16.13
+      '@types/md5':
+        specifier: ^2.3.5
+        version: 2.3.6
+      '@types/node':
+        specifier: ^18.19.130
+        version: 18.19.130
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.26.1
+        version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.26.1
+        version: 8.50.0(eslint@8.57.1)(typescript@5.8.2)
+      eslint:
+        specifier: ^8.19.0
+        version: 8.57.1
+      eslint-config-standard:
+        specifier: ^17.0.0
+        version: 17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.50.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint-plugin-n@15.7.0(eslint@8.57.1))(eslint-plugin-promise@6.6.0(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import:
+        specifier: ^2.26.0
+        version: 2.32.0(@typescript-eslint/parser@8.50.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)
+      eslint-plugin-n:
+        specifier: ^15.2.3
+        version: 15.7.0(eslint@8.57.1)
+      eslint-plugin-promise:
+        specifier: ^6.0.0
+        version: 6.6.0(eslint@8.57.1)
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+
   packages/taro-plugin-async-pack:
     dependencies:
       '@babel/core':
@@ -392,12 +438,18 @@ importers:
 
   packages/taro-plugin-bundle-stats:
     dependencies:
+      '@taro-minify-pack/helper':
+        specifier: workspace:*
+        version: link:../helper
       bundle-stats-webpack-plugin:
         specifier: ^4.22.1
         version: 4.22.1(webpack@5.104.0(@swc/core@1.3.96))
       got:
         specifier: ^11.8.6
         version: 11.8.6
+      handlebars:
+        specifier: ^4.7.9
+        version: 4.7.9
     devDependencies:
       '@tarojs/service':
         specifier: ^4.0.8
@@ -487,6 +539,9 @@ importers:
       '@supercharge/promise-pool':
         specifier: ^3.2.0
         version: 3.2.0
+      '@taro-minify-pack/helper':
+        specifier: workspace:*
+        version: link:../helper
       ali-oss:
         specifier: ^6.23.0
         version: 6.23.0
@@ -557,6 +612,9 @@ importers:
 
   packages/taro-preset:
     dependencies:
+      '@taro-minify-pack/helper':
+        specifier: workspace:*
+        version: link:../helper
       '@taro-minify-pack/plugin-async-pack':
         specifier: workspace:*
         version: link:../taro-plugin-async-pack
@@ -5412,6 +5470,11 @@ packages:
 
   handlebars@4.7.8:
     resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
+    engines: {node: '>=0.4.7'}
+    hasBin: true
+
+  handlebars@4.7.9:
+    resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -15368,6 +15431,15 @@ snapshots:
   handle-thing@2.0.1: {}
 
   handlebars@4.7.8:
+    dependencies:
+      minimist: 1.2.8
+      neo-async: 2.6.2
+      source-map: 0.6.1
+      wordwrap: 1.0.0
+    optionalDependencies:
+      uglify-js: 3.19.3
+
+  handlebars@4.7.9:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2

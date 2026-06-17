@@ -1,13 +1,11 @@
 import path from 'path'
 import { RemoteAssetPluginOpt } from '@/types'
 import { IPluginContext } from '@tarojs/service'
-import { uploadAssets } from './upload-assets'
+import { uploadAssets } from '@taro-minify-pack/helper'
 import { getCacheData, saveCacheData } from './utils'
 import { pathTransform } from '@/path-transform/path-transform'
 
 export * from '@/types'
-
-export * from './upload-adapter'
 
 const cacheFilePath = path.resolve(process.cwd(), 'node_modules', '.cache/remote-assets-cache.json')
 

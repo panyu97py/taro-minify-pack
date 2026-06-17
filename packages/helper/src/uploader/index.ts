@@ -1,6 +1,6 @@
 import { PromisePool } from '@supercharge/promise-pool'
-import { LocalAssetInfo, Uploader } from '@/types'
-import { generateFileUniqueKey, travelFiles } from '@/utils'
+import { LocalAssetInfo, Uploader } from './types'
+import { generateFileUniqueKey, travelFiles } from './utils'
 import path from 'path'
 
 interface UploaderOpt {
@@ -8,6 +8,8 @@ interface UploaderOpt {
     cacheData?:Record<string, any>
     upload?: Uploader
 }
+export * from './adapter'
+export * from './types'
 
 export const uploadAssets = async (opt: UploaderOpt) => {
   const { assetsDirPath, cacheData, upload } = opt

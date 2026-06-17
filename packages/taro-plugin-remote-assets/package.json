@@ -28,6 +28,7 @@
     "@babel/traverse": "^7.26.10",
     "@babel/types": "^7.26.10",
     "@supercharge/promise-pool": "^3.2.0",
+    "@taro-minify-pack/helper": "workspace:*",
     "ali-oss": "^6.23.0",
     "md5": "^2.3.0",
     "mini-css-extract-plugin": "^2.9.2",

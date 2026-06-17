@@ -1,3 +1,5 @@
+import { Uploader } from '@taro-minify-pack/helper'
+
 interface WebpackStatsOptions {
     /**
      * Output webpack assets information
@@ -38,6 +40,8 @@ export interface BundleStatsOpt {
     baseline?: boolean;
     baselinePath?: string;
     reportPath: string;
+    uploader?: Uploader,
+
     /**
      * webpack stats options
      * Default: `{ assets: true: true, chunks: true, modules: true, hash: true, builtAt: true }`.

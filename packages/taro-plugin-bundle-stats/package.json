@@ -18,8 +18,10 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
+    "@taro-minify-pack/helper": "workspace:*",
     "bundle-stats-webpack-plugin": "^4.22.1",
-    "got": "^11.8.6"
+    "got": "^11.8.6",
+    "handlebars": "^4.7.9"
   },
   "devDependencies": {
     "@tarojs/service": "^4.0.8",
