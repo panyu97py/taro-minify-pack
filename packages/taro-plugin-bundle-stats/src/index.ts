@@ -5,14 +5,14 @@ import path from 'path'
 
 const bundleStatsDefaultOpt: BundleStatsOpt = {
   reportPath: 'bundleStatsReport',
-  baselinePath: 'bundleStatsReport/baseline.json'
+  baselinePath: 'baseline.json'
 }
 export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) => {
   const finalOpts:BundleStatsOpt = { ...bundleStatsDefaultOpt, ...pluginOpts }
 
   ctx.modifyWebpackChain(({ chain }) => {
     const { appPath, outputPath } = ctx.paths
-    const { reportPath, ...rest } = finalOpts
+    const { reportPath, baselinePath: _, ...rest } = finalOpts
     const outDir = path.relative(outputPath, path.resolve(appPath, reportPath))
     const baselineFilepath = path.resolve(appPath, reportPath, 'baseline.json')
     const config: BundleStatsWebpackPlugin.Options = { ...rest, baselineFilepath, outDir }
