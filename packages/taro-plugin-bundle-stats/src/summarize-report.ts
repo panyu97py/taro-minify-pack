@@ -14,6 +14,24 @@ const getCurMetricRunInfo = <T extends BaseMetricRun> (metric?: Metric<T>) => {
   return currentMetricRun || {}
 }
 
+/**
+ * 格式化
+ */
+const formatMetric = <T extends BaseMetricRun> (metricList: Metric<T>[]) => {
+  return metricList.map(metric => {
+    const [current, baseline] = metric?.runs || []
+    const { displayDelta, displayDeltaPercentage } = current || {}
+    return { ...metric, displayDelta, displayDeltaPercentage, current, baseline }
+  })
+}
+
+/**
+ * 统计
+ */
+const summaryMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
+
+}
+
 export const summarizeReport = (opt: SummarizeReportOpt) => {
   const { appConfig, bundleStatsReport, focusMetricRun } = opt
 
@@ -37,25 +55,26 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
   })
 
   // 额外关注的资产
-  const focusAssets = bundleStatsReport.assets.filter(focusAsset => {
-    const { name } = getCurMetricRunInfo(focusAsset)
-    return focusMetricRun?.assets?.includes(name || focusAsset.key)
+  const focusAssets = bundleStatsReport.assets.filter(asset => {
+    const { name } = getCurMetricRunInfo(asset)
+    const assetName = normalizePath(name || asset.key)
+    return focusMetricRun?.assets?.includes(assetName)
   })
 
   // 额外关注的资产的 chunkId 列表
   const focusAssetChunkIds = focusAssets.map(asset => getCurMetricRunInfo(asset).chunkId)
 
   // 额外关注的模块
-  const focusModules = bundleStatsReport.modules.filter(focusModule => {
-    const { name, chunkIds } = getCurMetricRunInfo(focusModule)
+  const focusModules = bundleStatsReport.modules.filter(module => {
+    const { name, chunkIds } = getCurMetricRunInfo(module)
     const isInFocusAssets = focusAssetChunkIds.some((chunkId) => chunkIds.includes(chunkId))
-    return isInFocusAssets || focusMetricRun?.modules?.includes(name || focusModule.key)
+    return isInFocusAssets || focusMetricRun?.modules?.includes(name || module.key)
   })
 
   // 额外关注的包
-  const focusPackages = bundleStatsReport.packages.filter(focusPackage => {
-    const { name } = getCurMetricRunInfo(focusPackage)
-    return focusMetricRun?.packages?.includes(name || focusPackage.key)
+  const focusPackages = bundleStatsReport.packages.filter(dependPackage => {
+    const { name } = getCurMetricRunInfo(dependPackage)
+    return focusMetricRun?.packages?.includes(name || dependPackage.key)
   })
 
   console.log({ mainPackageModules, mainPackageAssets, focusAssets, focusModules, focusPackages })
