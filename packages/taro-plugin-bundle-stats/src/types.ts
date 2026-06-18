@@ -1,4 +1,5 @@
 import { Uploader } from '@taro-minify-pack/helper'
+import { AppConfig } from '@tarojs/taro'
 
 interface WebpackStatsOptions {
     /**
@@ -41,12 +42,8 @@ export interface BundleStatsOpt {
     baselinePath?: string;
     reportPath: string;
     uploader?: Uploader,
-
-    /**
-     * webpack stats options
-     * Default: `{ assets: true, chunks: true, modules: true, hash: true, builtAt: true }`.
-     */
     stats?: Partial<WebpackStatsOptions>;
+    reportConfig?: Omit<SummarizeReportOpt, 'appConfig'|'bundleStatsReport'>
 }
 
 export interface BaseMetricRun {
@@ -61,15 +58,19 @@ export interface BaseMetricRun {
 }
 
 export interface AssetMetricRun extends BaseMetricRun {
-    name:string
+    name: string
     isChunk: boolean,
     chunkId: string,
 }
 
 export interface ModuleMetricRun extends BaseMetricRun {
-    name:string
+    name: string
     chunkIds: string[],
 }
+export interface PackageMetricRun extends BaseMetricRun {
+    name: string
+}
+
 export interface Metric<T extends BaseMetricRun> {
     key: string;
     label: string;
@@ -82,5 +83,17 @@ export interface BundleStatsReport {
     stats: Metric<BaseMetricRun>[];
     assets: Metric<AssetMetricRun>[];
     modules: Metric<ModuleMetricRun>[];
+    packages: Metric<PackageMetricRun>[];
+}
 
+export interface FocusMetricRun {
+    assets: string[],
+    modules: string,
+    packages: string[],
+}
+
+export interface SummarizeReportOpt {
+    appConfig: AppConfig
+    bundleStatsReport: BundleStatsReport
+    focusMetricRun?: Partial<FocusMetricRun>
 }
