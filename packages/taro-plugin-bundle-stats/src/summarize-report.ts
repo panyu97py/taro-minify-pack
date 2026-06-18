@@ -1,16 +1,6 @@
 import { BaseMetricRun, Metric, SummarizeReportOpt } from './types'
 
 /**
- * 共享主资产列表
- */
-const sharedMainAssets = new Set(['app.js', 'runtime.js', 'common.js', 'vendors.js'])
-
-/**
- * 页面文件扩展名列表
- */
-const pageExtensions = ['.js', '.wxss', '.json', '.wxml']
-
-/**
  * 格式化路径
  */
 const normalizePath = (filePath: string) => filePath.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/$/, '')
@@ -27,19 +17,17 @@ const getCurMetricRunInfo = <T extends BaseMetricRun> (metric?: Metric<T>) => {
 export const summarizeReport = (opt: SummarizeReportOpt) => {
   const { appConfig, bundleStatsReport, focusMetricRun } = opt
 
-  // 主包页面列表
-  const { pages: mainPackagePages } = appConfig
+  const { subpackages, subPackages } = appConfig
+  const subPackageRoots = (subPackages || subpackages || []).map((item) => item.root)
 
-  // 主包页面资产
+  // 主包资产
   const mainPackageAssets = bundleStatsReport.assets.filter(asset => {
     const { name } = getCurMetricRunInfo(asset)
     const assetName = normalizePath(name || asset.key)
-    const isMainPackagePageAsset = mainPackagePages?.some(page => pageExtensions.some(ext => assetName === `${page}${ext}`))
-    const isSharedAsset = sharedMainAssets.has(assetName)
-    return isMainPackagePageAsset || isSharedAsset
+    return !subPackageRoots.some(subPackageRoots => assetName.startsWith(subPackageRoots))
   })
 
-  // 主包页面资产的 chunkId 列表
+  // 主包资产的 chunkId 列表
   const mainPackageAssetChunkIds = mainPackageAssets.map(asset => getCurMetricRunInfo(asset).chunkId)
 
   // 主包模块
