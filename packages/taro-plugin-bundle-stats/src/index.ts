@@ -1,14 +1,17 @@
 import type { IPluginContext } from '@tarojs/service'
 import { BundleStatsWebpackPlugin } from 'bundle-stats-webpack-plugin'
-import { BundleStatsOpt } from './types'
+import { BundleStatsOpt, BundleStatsReport } from './types'
 import path from 'path'
+import fs from 'fs'
+import { summarizeReport } from './summarize-report'
+import { AppConfig } from '@tarojs/taro'
 
 const bundleStatsDefaultOpt: BundleStatsOpt = {
   reportPath: 'bundleStatsReport',
   baselinePath: 'baseline.json'
 }
 export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) => {
-  const finalOpts:BundleStatsOpt = { ...bundleStatsDefaultOpt, ...pluginOpts }
+  const finalOpts: BundleStatsOpt = { ...bundleStatsDefaultOpt, ...pluginOpts }
   const { reportPath, baselinePath, uploader, ...rest } = finalOpts
 
   ctx.modifyWebpackChain(({ chain }) => {
@@ -25,8 +28,12 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
   })
 
   ctx.onBuildComplete(() => {
-    // 总结报告
-    // 处理数据用  handlebars 解析模版生成报告
+    const { appPath, outputPath } = ctx.paths
+    const appConfigPath = path.join(outputPath, 'app.json')
+    const appConfig: AppConfig = JSON.parse(fs.readFileSync(appConfigPath, 'utf8'))
+    const bundleStatsReportPath = path.resolve(appPath, reportPath, 'bundle-stats.json')
+    const bundleStatsReport: BundleStatsReport = JSON.parse(fs.readFileSync(bundleStatsReportPath, 'utf8'))
+    summarizeReport({ appConfig, bundleStatsReport })
   })
 
   ctx.registerCommand({

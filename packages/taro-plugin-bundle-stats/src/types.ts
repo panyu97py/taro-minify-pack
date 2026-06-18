@@ -44,7 +44,30 @@ export interface BundleStatsOpt {
 
     /**
      * webpack stats options
-     * Default: `{ assets: true: true, chunks: true, modules: true, hash: true, builtAt: true }`.
+     * Default: `{ assets: true, chunks: true, modules: true, hash: true, builtAt: true }`.
      */
     stats?: Partial<WebpackStatsOptions>;
+}
+
+export interface MetricRun {
+    value: number;
+    displayValue: string;
+    delta?: number;
+    deltaPercentage?: number;
+    displayDelta?: string;
+    displayDeltaPercentage?: string;
+    deltaType?: string;
+    regression?: boolean;
+}
+
+export interface Metric {
+    key: string;
+    label: string;
+    biggerIsBetter: boolean;
+    changed: boolean;
+    runs: MetricRun[];
+}
+
+export interface BundleStatsReport {
+    stats: Metric[];
 }

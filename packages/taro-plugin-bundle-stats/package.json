@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@tarojs/service": "^4.0.8",
+    "@tarojs/taro": "^4.0.8",
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
