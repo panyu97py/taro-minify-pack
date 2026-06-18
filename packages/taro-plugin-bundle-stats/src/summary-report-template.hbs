@@ -1,0 +1,43 @@
+# 📦 Bundle Stats Summary
+> Build Time: {{buildTime}}
+
+## 主包资源分析
+| Asset | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageAssets}}
+| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+## 主包模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageModules}}
+| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+{{#if focusAssets.length}}
+## 重点资源分析
+| Asset | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusAssets}}
+| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+{{#if focusModules.length}}
+## 重点模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusModules}}
+| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+{{#if focusPackages.length}}
+## 重点依赖分析
+| Package | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusPackages}}
+| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
