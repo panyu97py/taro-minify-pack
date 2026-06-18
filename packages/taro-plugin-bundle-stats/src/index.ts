@@ -6,6 +6,8 @@ import fs from 'fs'
 import { summarizeReport } from './summarize-report'
 import { AppConfig } from '@tarojs/taro'
 
+export type { BundleStatsOpt } from './types'
+
 const bundleStatsDefaultOpt: BundleStatsOpt = {
   reportPath: 'bundleStatsReport',
   baselinePath: 'baseline.json'

@@ -2,19 +2,21 @@ import type { RemoteAssetPluginOpt } from '@taro-minify-pack/plugin-remote-asset
 import type { AsyncPackOpts } from '@taro-minify-pack/plugin-async-pack'
 import type{ CoverBrowsersListOpt } from '@taro-minify-pack/plugin-cover-browserslist'
 import type { BundleAnalyzerOpt } from '@taro-minify-pack/plugin-bundle-analyzer'
+import type { BundleStatsOpt } from '@taro-minify-pack/plugin-bundle-stats'
 
 export * from '@taro-minify-pack/helper'
 export * from '@taro-minify-pack/plugin-async-pack'
 
 interface Opt {
     asyncPack?: AsyncPackOpts | boolean
+    bundleStats?:BundleStatsOpt | boolean
     bundleAnalyzer?:BundleAnalyzerOpt | boolean
     coverBrowsersList?: CoverBrowsersListOpt
     remoteAssets?: RemoteAssetPluginOpt
 }
 
 export default (_: any, opt: Opt) => {
-  const { remoteAssets, asyncPack, coverBrowsersList, bundleAnalyzer } = opt
+  const { remoteAssets, asyncPack, coverBrowsersList, bundleAnalyzer, bundleStats } = opt
   const plugins = []
 
   // 远程静态资源插件
@@ -30,6 +32,10 @@ export default (_: any, opt: Opt) => {
   // 包体积分析插件
   if (Boolean(bundleAnalyzer) && typeof bundleAnalyzer === 'boolean') plugins.push(require.resolve('@taro-minify-pack/plugin-bundle-analyzer'))
   if (Boolean(bundleAnalyzer) && typeof bundleAnalyzer !== 'boolean') plugins.push([require.resolve('@taro-minify-pack/plugin-bundle-analyzer'), bundleAnalyzer])
+
+  // 包体积分析插件
+  if (Boolean(bundleStats) && typeof bundleStats === 'boolean') plugins.push(require.resolve('@taro-minify-pack/plugin-bundle-analyzer'))
+  if (Boolean(bundleStats) && typeof bundleStats !== 'boolean') plugins.push([require.resolve('@taro-minify-pack/plugin-bundle-analyzer'), bundleStats])
 
   return { plugins }
 }

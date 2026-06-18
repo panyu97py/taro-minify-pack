@@ -624,6 +624,9 @@ importers:
       '@taro-minify-pack/plugin-bundle-analyzer':
         specifier: workspace:*
         version: link:../taro-plugin-bundle-analyzer
+      '@taro-minify-pack/plugin-bundle-stats':
+        specifier: workspace:*
+        version: link:../taro-plugin-bundle-stats
       '@taro-minify-pack/plugin-cover-browserslist':
         specifier: workspace:*
         version: link:../taro-plugin-cover-browserslist
