@@ -1,6 +1,13 @@
 # 📦 Bundle Stats Summary
 > Build Time: {{buildTime}}
 
+## 主包整体变化
+| 指标 | Current | Baseline | Delta |
+|------|--------:|--------:|------:|
+| 总体体积 | {{mainPackageSummary.currentTotalSize}} | {{mainPackageSummary.baselineTotalSize}} | {{mainPackageSummary.displaySizeDelta}} |
+| 模块数量 | {{mainPackageSummary.currentModuleCount}} | {{mainPackageSummary.baselineModuleCount}} | {{mainPackageSummary.moduleCountDelta}} |
+| 资源数量 | {{mainPackageSummary.currentAssetCount}} | {{mainPackageSummary.baselineAssetCount}} | {{mainPackageSummary.assetCountDelta}} |
+
 ## 主包资源分析
 | Asset | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
