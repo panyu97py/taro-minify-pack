@@ -49,7 +49,7 @@ export interface BundleStatsOpt {
     stats?: Partial<WebpackStatsOptions>;
 }
 
-export interface MetricRun {
+export interface BaseMetricRun {
     value: number;
     displayValue: string;
     delta?: number;
@@ -60,14 +60,27 @@ export interface MetricRun {
     regression?: boolean;
 }
 
-export interface Metric {
+export interface AssetMetricRun extends BaseMetricRun {
+    name:string
+    isChunk: boolean,
+    chunkId: string,
+}
+
+export interface ModuleMetricRun extends BaseMetricRun {
+    name:string
+    chunkIds: string[],
+}
+export interface Metric<T extends BaseMetricRun> {
     key: string;
     label: string;
     biggerIsBetter: boolean;
     changed: boolean;
-    runs: MetricRun[];
+    runs: T[];
 }
 
 export interface BundleStatsReport {
-    stats: Metric[];
+    stats: Metric<BaseMetricRun>[];
+    assets: Metric<AssetMetricRun>[];
+    modules: Metric<ModuleMetricRun>[];
+
 }
