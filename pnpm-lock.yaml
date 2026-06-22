@@ -444,6 +444,9 @@ importers:
       bundle-stats-webpack-plugin:
         specifier: ^4.22.1
         version: 4.22.1(webpack@5.104.0(@swc/core@1.3.96))
+      dayjs:
+        specifier: ^1.11.21
+        version: 1.11.21
       got:
         specifier: ^11.8.6
         version: 11.8.6
@@ -4491,6 +4494,9 @@ packages:
 
   dateformat@3.0.3:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
+
+  dayjs@1.11.21:
+    resolution: {integrity: sha512-98IT+HOahAisibz/yjKbzuOBwYcjJ7BCLPzARyHiyEBmRz4fatF+KPJszEHXsGYjUG234aH/cOjW1wwTbKUZlA==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -14687,6 +14693,8 @@ snapshots:
   dateformat@2.2.0: {}
 
   dateformat@3.0.3: {}
+
+  dayjs@1.11.21: {}
 
   debounce@1.2.1: {}
 

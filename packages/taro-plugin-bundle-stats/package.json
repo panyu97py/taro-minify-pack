@@ -20,6 +20,7 @@
   "dependencies": {
     "@taro-minify-pack/helper": "workspace:*",
     "bundle-stats-webpack-plugin": "^4.22.1",
+    "dayjs": "^1.11.21",
     "got": "^11.8.6",
     "handlebars": "^4.7.9"
   },

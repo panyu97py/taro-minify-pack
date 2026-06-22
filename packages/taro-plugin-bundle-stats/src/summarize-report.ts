@@ -2,6 +2,7 @@ import Handlebars from 'handlebars'
 import { BaseMetricRun, Metric, SummarizeReportOpt } from './types'
 import fs from 'fs'
 import path from 'path'
+import dayjs from 'dayjs'
 
 /**
  * 格式化路径
@@ -86,7 +87,7 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
   // 主包模块
   const mainPackageModules = bundleStatsReport.modules.filter(module => {
     const { chunkIds } = getCurMetricRunInfo(module)
-    return mainPackageAssetChunkIds.some((chunkId) => chunkIds.includes(chunkId))
+    return mainPackageAssetChunkIds.some((chunkId) => chunkIds?.includes(chunkId))
   })
 
   // 额外关注的资产
@@ -102,7 +103,7 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
   // 额外关注的模块
   const focusModules = bundleStatsReport.modules.filter(module => {
     const { name, chunkIds } = getCurMetricRunInfo(module)
-    const isInFocusAssets = focusAssetChunkIds.some((chunkId) => chunkIds.includes(chunkId))
+    const isInFocusAssets = focusAssetChunkIds.some((chunkId) => chunkIds?.includes(chunkId))
     return isInFocusAssets || focusMetricRun?.modules?.includes(name || module.key)
   })
 
@@ -124,6 +125,7 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
 
   return Handlebars.compile(template)({
     mainPackageSummary,
+    buildTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     mainPackageAssets: formatMetric(mainPackageAssets),
     mainPackageModules: formatMetric(mainPackageModules),
     focusAssets: formatMetric(focusAssets),
