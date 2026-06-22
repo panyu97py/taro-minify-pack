@@ -1,4 +1,7 @@
+import Handlebars from 'handlebars'
 import { BaseMetricRun, Metric, SummarizeReportOpt } from './types'
+import fs from 'fs'
+import path from 'path'
 
 /**
  * 格式化路径
@@ -15,6 +18,15 @@ const getCurMetricRunInfo = <T extends BaseMetricRun> (metric?: Metric<T>) => {
 }
 
 /**
+ * 获取这次构建的指标
+ * @param metric
+ */
+const getBaselineMetricRunInfo = <T extends BaseMetricRun> (metric?: Metric<T>) => {
+  const [_, baselineMetricRun] = metric?.runs || []
+  return baselineMetricRun || {}
+}
+
+/**
  * 格式化
  */
 const formatMetric = <T extends BaseMetricRun> (metricList: Metric<T>[]) => {
@@ -25,11 +37,34 @@ const formatMetric = <T extends BaseMetricRun> (metricList: Metric<T>[]) => {
   })
 }
 
+const formatSize = (size: number) => {
+  if (Math.abs(size) < 1024) return `${size}B`
+  if (Math.abs(size) < 1024 * 1024) return `${(size / 1024).toFixed(2)}KB`
+  return `${(size / 1024 / 1024).toFixed(2)}MB`
+}
+
 /**
  * 统计
  */
 const summaryMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
+  const currentTotalSize = metric.reduce((result, item) => getCurMetricRunInfo(item).value + result, 0)
+  const baselineTotalSize = metric.reduce((result, item) => getBaselineMetricRunInfo(item).value + result, 0)
+  const sizeDelta = currentTotalSize - baselineTotalSize
+  const displaySizeDelta = formatSize(sizeDelta)
+  return { currentTotalSize, baselineTotalSize, sizeDelta, displaySizeDelta }
+}
 
+const statisticMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
+  const initVal = { currentCount: 0, baselineCount: 0 }
+  const { currentCount, baselineCount } = metric.reduce((result, item) => {
+    const curMetricRun = getCurMetricRunInfo(item)
+    const baselineMetricRun = getBaselineMetricRunInfo(item)
+    const currentCount = curMetricRun.value ? result.currentCount + 1 : result.currentCount
+    const baselineCount = baselineMetricRun.value ? result.baselineCount + 1 : result.baselineCount
+    return { currentCount, baselineCount }
+  }, initVal)
+  const countDelta = currentCount - baselineCount
+  return { currentCount, baselineCount, countDelta }
 }
 
 export const summarizeReport = (opt: SummarizeReportOpt) => {
@@ -77,5 +112,22 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
     return focusMetricRun?.packages?.includes(name || dependPackage.key)
   })
 
-  console.log({ mainPackageModules, mainPackageAssets, focusAssets, focusModules, focusPackages })
+  // 概览
+  const mainPackageSummary = (() => {
+    const summary = summaryMetric(mainPackageAssets)
+    const { currentCount: currentAssetCount, baselineCount: baselineAssetCount, countDelta: assetCountDelta } = statisticMetric(mainPackageAssets)
+    const { currentCount: currentModuleCount, baselineCount: baselineModuleCount, countDelta: moduleCountDelta } = statisticMetric(mainPackageModules)
+    return { ...summary, currentAssetCount, currentModuleCount, baselineAssetCount, baselineModuleCount, assetCountDelta, moduleCountDelta }
+  })()
+
+  const template = fs.readFileSync(path.join(__dirname, './summary-report-template.hbs'), 'utf-8')
+
+  Handlebars.compile(template)({
+    mainPackageSummary,
+    mainPackageAssets: formatMetric(mainPackageAssets),
+    mainPackageModules: formatMetric(mainPackageModules),
+    focusAssets: formatMetric(focusAssets),
+    focusModules: formatMetric(focusModules),
+    focusPackages: formatMetric(focusPackages)
+  })
 }

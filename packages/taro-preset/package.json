@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@taro-minify-pack/helper": "workspace:*",
-    "1@taro-minify-pack/plugin-bundle-stats": "workspace:*",
+    "@taro-minify-pack/plugin-bundle-stats": "workspace:*",
     "@taro-minify-pack/plugin-async-pack": "workspace:*",
     "@taro-minify-pack/plugin-bundle-analyzer": "workspace:*",
     "@taro-minify-pack/plugin-cover-browserslist": "workspace:*",
