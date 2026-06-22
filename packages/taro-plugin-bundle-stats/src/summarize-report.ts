@@ -34,7 +34,8 @@ const formatMetric = <T extends BaseMetricRun> (metricList: Metric<T>[]) => {
   return metricList.map(metric => {
     const [current, baseline] = metric?.runs || []
     const { displayDelta, displayDeltaPercentage } = current || {}
-    return { ...metric, displayDelta, displayDeltaPercentage, current, baseline }
+    const displayLabel = normalizePath(metric.label)
+    return { ...metric, displayLabel, displayDelta, displayDeltaPercentage, current, baseline }
   })
 }
 
@@ -44,6 +45,12 @@ const formatSize = (size: number) => {
   return `${(size / 1024 / 1024).toFixed(2)}MB`
 }
 
+const formatSymbol = (val: number) => {
+  if (val > 0) return '+'
+  if (val < 0) return '-'
+  return ''
+}
+
 /**
  * 统计
  */
@@ -51,8 +58,10 @@ const summaryMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
   const currentTotalSize = metric.reduce((result, item) => getCurMetricRunInfo(item).value + result, 0)
   const baselineTotalSize = metric.reduce((result, item) => getBaselineMetricRunInfo(item).value + result, 0)
   const sizeDelta = currentTotalSize - baselineTotalSize
-  const displaySizeDelta = formatSize(sizeDelta)
-  return { currentTotalSize, baselineTotalSize, sizeDelta, displaySizeDelta }
+  const displaySizeDelta = `${formatSymbol(sizeDelta)}${formatSize(sizeDelta)}`
+  const displayCurrentTotalSize = formatSize(currentTotalSize)
+  const displayBaselineTotalSize = formatSize(baselineTotalSize)
+  return { currentTotalSize, baselineTotalSize, sizeDelta, displayCurrentTotalSize, displayBaselineTotalSize, displaySizeDelta }
 }
 
 const statisticMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
@@ -69,7 +78,7 @@ const statisticMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
 }
 
 export const summarizeReport = (opt: SummarizeReportOpt) => {
-  const { appConfig, bundleStatsReport, focusMetricRun } = opt
+  const { appConfig, bundleStatsReport, focusMetricRun, displayLimit = 20 } = opt
 
   const { subpackages, subPackages } = appConfig
   const subPackageRoots = (subPackages || subpackages || []).map((item) => item.root)
@@ -121,13 +130,30 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
     return { ...summary, currentAssetCount, currentModuleCount, baselineAssetCount, baselineModuleCount, assetCountDelta, moduleCountDelta }
   })()
 
+  const mainPackageChangedModules = (() => {
+    const tempArr = mainPackageModules.filter(item => item.changed)
+    return tempArr.sort((a, b) => (getCurMetricRunInfo(b).delta ?? 0) - (getCurMetricRunInfo(a).delta ?? 0))
+  })()
+
+  const mainPackageBusinessModules = (() => {
+    const tempArr = mainPackageModules.filter(item => !/node_modules/.test(item.key))
+    return tempArr.sort((a, b) => (getCurMetricRunInfo(b).value ?? 0) - (getCurMetricRunInfo(a).value ?? 0))
+  })()
+
+  const mainPackageDependModules = (() => {
+    const tempArr = mainPackageModules.filter(item => /node_modules/.test(item.key))
+    return tempArr.sort((a, b) => (getCurMetricRunInfo(b).value ?? 0) - (getCurMetricRunInfo(a).value ?? 0))
+  })()
+
   const template = fs.readFileSync(path.join(__dirname, './summary-report-template.hbs'), 'utf-8')
 
   return Handlebars.compile(template)({
     mainPackageSummary,
     buildTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
     mainPackageAssets: formatMetric(mainPackageAssets),
-    mainPackageModules: formatMetric(mainPackageModules),
+    mainPackageChangedModules: formatMetric(mainPackageChangedModules),
+    mainPackageBusinessModules: formatMetric(mainPackageBusinessModules).slice(0, displayLimit),
+    mainPackageDependModules: formatMetric(mainPackageDependModules).slice(0, displayLimit),
     focusAssets: formatMetric(focusAssets),
     focusModules: formatMetric(focusModules),
     focusPackages: formatMetric(focusPackages)

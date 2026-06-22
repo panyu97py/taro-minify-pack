@@ -4,7 +4,7 @@
 ## 主包整体变化
 | 指标 | Current | Baseline | Delta |
 |------|--------:|--------:|------:|
-| 总体体积 | {{mainPackageSummary.currentTotalSize}} | {{mainPackageSummary.baselineTotalSize}} | {{mainPackageSummary.displaySizeDelta}} |
+| 总体体积 | {{mainPackageSummary.displayCurrentTotalSize}} | {{mainPackageSummary.displayBaselineTotalSize}} | {{mainPackageSummary.displaySizeDelta}} |
 | 模块数量 | {{mainPackageSummary.currentModuleCount}} | {{mainPackageSummary.baselineModuleCount}} | {{mainPackageSummary.moduleCountDelta}} |
 | 资源数量 | {{mainPackageSummary.currentAssetCount}} | {{mainPackageSummary.baselineAssetCount}} | {{mainPackageSummary.assetCountDelta}} |
 
@@ -12,14 +12,32 @@
 | Asset | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
 {{#each mainPackageAssets}}
-| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
 {{/each}}
 
 ## 主包模块分析
+
+{{#if mainPackageChangedModules.length}}
+### 主包变化模块分析
 | Module | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
-{{#each mainPackageModules}}
-| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{#each mainPackageChangedModules}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+### 主包业务模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageBusinessModules}}
+    | {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+### 主包依赖模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageDependModules}}
+    | {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
 {{/each}}
 
 {{#if focusAssets.length}}
@@ -27,7 +45,7 @@
 | Asset | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
 {{#each focusAssets}}
-| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
 {{/each}}
 {{/if}}
 
@@ -36,7 +54,7 @@
 | Module | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
 {{#each focusModules}}
-| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
 {{/each}}
 {{/if}}
 
@@ -45,6 +63,6 @@
 | Package | Current | Baseline | Delta | Ratio|
 |----------|------:|------:|------:|------:|
 {{#each focusPackages}}
-| {{name}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
 {{/each}}
 {{/if}}

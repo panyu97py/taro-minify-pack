@@ -95,5 +95,6 @@ export interface FocusMetricRun {
 export interface SummarizeReportOpt {
     appConfig: AppConfig
     bundleStatsReport: BundleStatsReport
-    focusMetricRun?: Partial<FocusMetricRun>
+    focusMetricRun?: Partial<FocusMetricRun>,
+    displayLimit?: number
 }
