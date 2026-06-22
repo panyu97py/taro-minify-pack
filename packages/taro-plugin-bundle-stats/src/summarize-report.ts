@@ -122,7 +122,7 @@ export const summarizeReport = (opt: SummarizeReportOpt) => {
 
   const template = fs.readFileSync(path.join(__dirname, './summary-report-template.hbs'), 'utf-8')
 
-  Handlebars.compile(template)({
+  return Handlebars.compile(template)({
     mainPackageSummary,
     mainPackageAssets: formatMetric(mainPackageAssets),
     mainPackageModules: formatMetric(mainPackageModules),

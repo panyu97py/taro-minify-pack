@@ -35,7 +35,9 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
     const appConfig: AppConfig = JSON.parse(fs.readFileSync(appConfigPath, 'utf8'))
     const bundleStatsReportPath = path.resolve(appPath, reportPath, 'bundle-stats.json')
     const bundleStatsReport: BundleStatsReport = JSON.parse(fs.readFileSync(bundleStatsReportPath, 'utf8'))
-    summarizeReport({ appConfig, bundleStatsReport })
+    const reportStr = summarizeReport({ appConfig, bundleStatsReport })
+    const summaryReportPath = path.resolve(appPath, reportPath, 'summary-report.md')
+    fs.writeFileSync(summaryReportPath, reportStr)
   })
 
   ctx.registerCommand({
