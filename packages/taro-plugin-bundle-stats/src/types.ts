@@ -41,7 +41,7 @@ export interface BundleStatsOpt {
     baseline?: boolean;
     baselinePath?: string;
     reportPath: string;
-    uploader?: Uploader,
+    upload?: Uploader,
     stats?: Partial<WebpackStatsOptions>;
     reportConfig?: Omit<SummarizeReportOpt, 'appConfig'|'bundleStatsReport'>
 }

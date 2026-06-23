@@ -4,6 +4,7 @@ import { BundleStatsOpt, BundleStatsReport } from './types'
 import path from 'path'
 import fs from 'fs'
 import { summarizeReport } from './summarize-report'
+import { uploadAssets } from '@taro-minify-pack/helper'
 import { AppConfig } from '@tarojs/taro'
 
 export type { BundleStatsOpt } from './types'
@@ -14,7 +15,7 @@ const bundleStatsDefaultOpt: BundleStatsOpt = {
 }
 export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) => {
   const finalOpts: BundleStatsOpt = { ...bundleStatsDefaultOpt, ...pluginOpts }
-  const { reportPath, baselinePath, uploader, ...rest } = finalOpts
+  const { reportPath, baselinePath, upload, ...rest } = finalOpts
 
   ctx.modifyWebpackChain(({ chain }) => {
     const { appPath, outputPath } = ctx.paths
@@ -43,8 +44,10 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
   ctx.registerCommand({
     name: 'upload-bundle-stats-report',
     async fn () {
-      console.log('uploader', uploader)
-      // 上传报告到服务器
+      const { appPath } = ctx.paths
+      const assetsDirPath = path.resolve(appPath, reportPath)
+      await uploadAssets({ assetsDirPath, upload })
+      console.log('✅ upload bundle-stats report success.')
     }
   })
 }
