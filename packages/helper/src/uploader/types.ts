@@ -1,5 +1,6 @@
 export interface LocalAssetInfo {
     localPath: string,
+    fileName: string,
     uniqueKey: string,
     ext: string
 }

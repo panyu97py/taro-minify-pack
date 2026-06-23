@@ -5,27 +5,23 @@ import path from 'path'
 
 interface UploaderOpt {
     assetsDirPath?: string,
-    cacheData?:Record<string, any>
     upload?: Uploader
 }
 export * from './adapter'
 export * from './types'
 
 export const uploadAssets = async (opt: UploaderOpt) => {
-  const { assetsDirPath, cacheData, upload } = opt
+  const { assetsDirPath, upload } = opt
 
   if (!assetsDirPath || !upload) return []
-
-  const uploadedAssetFileNames = Object.values(cacheData || {}).map(item => path.basename(new URL(item).pathname))
 
   const assetsPaths = travelFiles(assetsDirPath)
 
   const assetsInfos = assetsPaths.reduce<LocalAssetInfo[]>((result, localPath) => {
     const uniqueKey = generateFileUniqueKey(localPath)
     const { ext } = path.parse(localPath)
-    const isUploaded = uploadedAssetFileNames.includes(`${uniqueKey}${ext}`)
-    if (isUploaded) return result
-    return [...result, { localPath, ext, uniqueKey }]
+    const fileName = path.parse(localPath).name
+    return [...result, { localPath, ext, uniqueKey, fileName }]
   }, [])
 
   const { results: remoteAssetInfoList } = await PromisePool.withConcurrency(2)
