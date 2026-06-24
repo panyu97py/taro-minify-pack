@@ -88,7 +88,7 @@ export interface BundleStatsReport {
 
 export interface FocusMetricRun {
     assets: string[],
-    modules: string,
+    modules: string[],
     packages: string[],
 }
 
