@@ -35,6 +35,8 @@
 | <nobr>[`@taro-minify-pack/plugin-async-pack`](./packages/taro-plugin-async-pack/README.md)</nobr>                 | 主包公共代码与样式的异步拆分加载                                                               |
 | <nobr>[`@taro-minify-pack/plugin-remote-assets`](./packages/taro-plugin-remote-assets/README.md)</nobr>           | 静态资源自动上传并替换路径                                                                  |
 | <nobr>[`@taro-minify-pack/plugin-cover-browserslist`](./packages/taro-plugin-cover-browserslist/README.md)</nobr> | 基于小程序基础库版本生成并覆盖 browserslist                                                   |
+| <nobr>[`@taro-minify-pack/plugin-bundle-stats`](./packages/taro-plugin-bundle-stats/README.md)</nobr>             | 集成 `bundle-stats-webpack-plugin`，可视化分析打包结果，帮助优化代码体积和依赖关系。                      |
+| <nobr>[`@taro-minify-pack/helper`](./packages/helper/README.md)</nobr>                                            | 提供一些辅助函数，帮助你更方便地使用 Taro Minify Pack                                            |
 
 ## 📁 Repository Structure
 

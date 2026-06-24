@@ -12,6 +12,10 @@ import { AppConfig } from '@tarojs/taro'
 export type { BundleStatsOpt } from './types'
 
 const bundleStatsDefaultOpt: BundleStatsOpt = {
+  json: true,
+  html: true,
+  compare: true,
+  baseline: true,
   reportPath: 'bundleStatsReport',
   baselinePath: 'baseline.json'
 }
@@ -36,19 +40,20 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
     if (!/https?:\/\//.test(baselinePath)) return fs.copyFileSync(baselinePath, reportBaselineFilepath)
     const stream = got.stream(baselinePath)
     await pipeline(stream, fs.createWriteStream(reportBaselineFilepath))
-    console.log(`✅ load baseline.json success. ${reportBaselineFilepath}`)
+    console.log(`✨ load baseline.json success. ${reportBaselineFilepath}`)
   })
 
   ctx.onBuildComplete(() => {
     const { appPath, outputPath } = ctx.paths
     const appConfigPath = path.join(outputPath, 'app.json')
-    const appConfig: AppConfig = JSON.parse(fs.readFileSync(appConfigPath, 'utf8'))
     const bundleStatsReportPath = path.resolve(appPath, reportPath, 'bundle-stats.json')
+    if (!fs.existsSync(bundleStatsReportPath) || !fs.existsSync(appConfigPath)) return
+    const appConfig: AppConfig = JSON.parse(fs.readFileSync(appConfigPath, 'utf8'))
     const bundleStatsReport: BundleStatsReport = JSON.parse(fs.readFileSync(bundleStatsReportPath, 'utf8'))
     const reportStr = summarizeReport({ appConfig, bundleStatsReport })
     const summaryReportPath = path.resolve(appPath, reportPath, 'summary-report.md')
     fs.writeFileSync(summaryReportPath, reportStr)
-    console.log('✅ generate summary-report.md success.')
+    console.log('✨ generate summary-report.md success.')
   })
 
   ctx.registerCommand({
@@ -57,7 +62,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
       const { appPath } = ctx.paths
       const assetsDirPath = path.resolve(appPath, reportPath)
       await uploadAssets({ assetsDirPath, upload })
-      console.log('✅ upload bundle-stats report success.')
+      console.log('✨ upload bundle-stats report success.')
     }
   })
 }
