@@ -12,6 +12,6 @@ export interface RemoteAssetInfo {
     remoteUrl: string
 }
 
-export type Uploader = (opt: LocalAssetInfo) => Promise<RemoteAssetInfo>
+export type Uploader = (localAssetInfo: LocalAssetInfo, payload?: any) => Promise<RemoteAssetInfo>
 
 export type UploaderAdapter<T = any> = (opt: T) => Uploader

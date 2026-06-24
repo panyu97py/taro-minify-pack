@@ -4,14 +4,17 @@ import { generateFileUniqueKey, travelFiles } from './utils'
 import path from 'path'
 
 interface UploaderOpt {
-    assetsDirPath?: string,
-    upload?: Uploader
+  upload?: Uploader
+  payload?: any
+  assetsDirPath?: string,
+  processAssets?: (assets: LocalAssetInfo[]) => LocalAssetInfo[]
 }
+
 export * from './adapter'
 export * from './types'
 
 export const uploadAssets = async (opt: UploaderOpt) => {
-  const { assetsDirPath, upload } = opt
+  const { assetsDirPath, upload, payload, processAssets = (assets) => assets } = opt
 
   if (!assetsDirPath || !upload) return []
 
@@ -25,8 +28,8 @@ export const uploadAssets = async (opt: UploaderOpt) => {
   }, [])
 
   const { results: remoteAssetInfoList } = await PromisePool.withConcurrency(2)
-    .for(assetsInfos)
-    .process(async (localAssetInfo) => upload(localAssetInfo))
+    .for(processAssets(assetsInfos))
+    .process(async (localAssetInfo) => upload(localAssetInfo, payload))
 
   return remoteAssetInfoList.filter(Boolean)
 }

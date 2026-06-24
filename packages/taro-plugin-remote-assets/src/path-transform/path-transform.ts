@@ -19,6 +19,6 @@ export const pathTransform = (opt: Opt) => {
       return path
     })()
     if (!remoteAssetInfoMap[localPath]) return path
-    return remoteAssetInfoMap[localPath]
+    return remoteAssetInfoMap[localPath].remoteUrl
   }
 }

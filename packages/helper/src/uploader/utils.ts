@@ -22,20 +22,3 @@ export const generateFileUniqueKey = (filePath: string) => {
   const buffer = fs.readFileSync(`${dir}${path.sep}${base}`)
   return md5(buffer)
 }
-
-export const getCacheData = (cacheFilePath:string): any => {
-  try {
-    fs.accessSync(cacheFilePath)
-    return JSON.parse(fs.readFileSync(cacheFilePath).toString())
-  } catch (error) {
-    return {}
-  }
-}
-
-export const saveCacheData = (cacheFilePath:string, cacheData:any) => {
-  const cacheDirPath = path.dirname(cacheFilePath)
-  if (!fs.existsSync(cacheDirPath)) fs.mkdirSync(cacheDirPath, { recursive: true })
-  fs.writeFileSync(cacheFilePath, JSON.stringify(cacheData))
-}
-
-export const noop = () => {}
