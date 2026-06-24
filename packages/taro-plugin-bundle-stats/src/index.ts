@@ -1,8 +1,10 @@
 import type { IPluginContext } from '@tarojs/service'
 import { BundleStatsWebpackPlugin } from 'bundle-stats-webpack-plugin'
 import { BundleStatsOpt, BundleStatsReport } from './types'
+import got from 'got'
 import path from 'path'
 import fs from 'fs'
+import { pipeline } from 'stream/promises'
 import { summarizeReport } from './summarize-report'
 import { uploadAssets } from '@taro-minify-pack/helper'
 import { AppConfig } from '@tarojs/taro'
@@ -25,9 +27,16 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
     chain.plugin('bundle-stats').use(BundleStatsWebpackPlugin, [config])
   })
 
-  ctx.onBuildStart(() => {
-    console.log('baselinePath', baselinePath)
-    // 加载baseline文件
+  ctx.onBuildStart(async () => {
+    const { appPath } = ctx.paths
+    const reportDirPath = path.resolve(appPath, reportPath)
+    const reportBaselineFilepath = path.resolve(reportDirPath, 'baseline.json')
+    if (!baselinePath || baselinePath === reportBaselineFilepath) return
+    if (!fs.existsSync(reportDirPath)) fs.mkdirSync(reportDirPath, { recursive: true })
+    if (!/https?:\/\//.test(baselinePath)) return fs.copyFileSync(baselinePath, reportBaselineFilepath)
+    const stream = got.stream(baselinePath)
+    await pipeline(stream, fs.createWriteStream(reportBaselineFilepath))
+    console.log(`✅ load baseline.json success. ${reportBaselineFilepath}`)
   })
 
   ctx.onBuildComplete(() => {
@@ -39,6 +48,7 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
     const reportStr = summarizeReport({ appConfig, bundleStatsReport })
     const summaryReportPath = path.resolve(appPath, reportPath, 'summary-report.md')
     fs.writeFileSync(summaryReportPath, reportStr)
+    console.log('✅ generate summary-report.md success.')
   })
 
   ctx.registerCommand({
