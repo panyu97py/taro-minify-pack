@@ -1,5 +1,5 @@
 {
-  "name": "@taro-minify-pack/plugin-bundle-analyzer",
+  "name": "@taro-minify-pack/plugin-bundle-stats",
   "version": "0.1.4-alpha.3",
   "description": "",
   "main": "dist/index.js",
@@ -13,18 +13,24 @@
     "url": "git+https://github.com/panyu97py/taro-minify-pack.git"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && cpx \"src/**/*.hbs\" dist"
   },
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "webpack-bundle-analyzer": "^4.10.2"
+    "@taro-minify-pack/helper": "workspace:*",
+    "bundle-stats-webpack-plugin": "^4.22.1",
+    "dayjs": "^1.11.21",
+    "got": "^11.8.6",
+    "handlebars": "^4.7.9"
   },
   "devDependencies": {
     "@tarojs/service": "^4.0.8",
+    "@tarojs/taro": "^4.0.8",
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
+    "cpx": "^1.5.0",
     "eslint": "^8.19.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",

@@ -1,15 +1,13 @@
 import path from 'path'
 import { RemoteAssetPluginOpt } from '@/types'
 import { IPluginContext } from '@tarojs/service'
-import { uploadAssets } from './upload-assets'
+import { LocalAssetInfo, uploadAssets } from '@taro-minify-pack/helper'
 import { getCacheData, saveCacheData } from './utils'
 import { pathTransform } from '@/path-transform/path-transform'
 
 export * from '@/types'
 
-export * from './upload-adapter'
-
-const cacheFilePath = path.resolve(process.cwd(), 'node_modules', '.cache/remote-assets-cache.json')
+const cacheFilePath = path.resolve(process.cwd(), 'node_modules', '.cache/remote-assets.json')
 
 export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
   const transform = pathTransform({ cacheFilePath, pathAlias: pluginOpts.pathAlias || {} })
@@ -17,9 +15,11 @@ export default (ctx: IPluginContext, pluginOpts: RemoteAssetPluginOpt) => {
   ctx.onBuildStart(async () => {
     const { assetsDirPath, uploader } = pluginOpts
     const cacheData = getCacheData(cacheFilePath)
-    const remoteAssetInfoList = await uploadAssets({ assetsDirPath, cacheData, upload: uploader })
+    const cacheAssetUniqueKeys = Object.values(cacheData).map(item => item.uniqueKey)
+    const processAssets = (assets: LocalAssetInfo[]) => assets.filter(item => !cacheAssetUniqueKeys.includes(item.uniqueKey))
+    const remoteAssetInfoList = await uploadAssets({ assetsDirPath, upload: uploader, processAssets })
     const remoteAssetInfoMap = remoteAssetInfoList.reduce((result, item) => {
-      return { ...result, [item.localPath]: item.remoteUrl }
+      return { ...result, [item.localPath]: item }
     }, cacheData)
     saveCacheData(cacheFilePath, remoteAssetInfoMap)
   })

@@ -1,0 +1,68 @@
+# 📦 Bundle Stats Summary
+> Build Time: {{buildTime}}
+
+## 主包整体变化
+| 指标 | Current | Baseline | Delta |
+|------|--------:|--------:|------:|
+| 总体体积 | {{mainPackageSummary.displayCurrentTotalSize}} | {{mainPackageSummary.displayBaselineTotalSize}} | {{mainPackageSummary.displaySizeDelta}} |
+| 模块数量 | {{mainPackageSummary.currentModuleCount}} | {{mainPackageSummary.baselineModuleCount}} | {{mainPackageSummary.moduleCountDelta}} |
+| 资源数量 | {{mainPackageSummary.currentAssetCount}} | {{mainPackageSummary.baselineAssetCount}} | {{mainPackageSummary.assetCountDelta}} |
+
+## 主包资源分析
+| Asset | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageAssets}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+## 主包模块分析
+
+{{#if mainPackageChangedModules.length}}
+### 主包变化模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageChangedModules}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+### 主包业务模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageBusinessModules}}
+    | {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+### 主包依赖模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each mainPackageDependModules}}
+    | {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+
+{{#if focusAssets.length}}
+## 重点资源分析
+| Asset | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusAssets}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+{{#if focusModules.length}}
+## 重点模块分析
+| Module | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusModules}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}
+
+{{#if focusPackages.length}}
+## 重点依赖分析
+| Package | Current | Baseline | Delta | Ratio|
+|----------|------:|------:|------:|------:|
+{{#each focusPackages}}
+| {{displayLabel}} | {{current.displayValue}} | {{baseline.displayValue}} | {{displayDelta}} | {{displayDeltaPercentage}}|
+{{/each}}
+{{/if}}

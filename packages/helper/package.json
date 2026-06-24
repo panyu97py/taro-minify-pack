@@ -1,5 +1,5 @@
 {
-  "name": "@taro-minify-pack/plugin-bundle-analyzer",
+  "name": "@taro-minify-pack/helper",
   "version": "0.1.4-alpha.3",
   "description": "",
   "main": "dist/index.js",
@@ -18,11 +18,14 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
-    "webpack-bundle-analyzer": "^4.10.2"
+    "@supercharge/promise-pool": "^3.2.0",
+    "ali-oss": "^6.23.0",
+    "md5": "^2.3.0"
   },
   "devDependencies": {
-    "@tarojs/service": "^4.0.8",
-    "@types/webpack-bundle-analyzer": "^4.7.0",
+    "@types/ali-oss": "^6.16.13",
+    "@types/md5": "^2.3.5",
+    "@types/node": "^18.19.130",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^8.19.0",

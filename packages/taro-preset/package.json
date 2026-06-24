@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/preset",
-  "version": "0.1.4-alpha.2",
+  "version": "0.1.4-alpha.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,8 +18,10 @@
   "author": "yu.pan",
   "license": "MIT",
   "dependencies": {
+    "@taro-minify-pack/helper": "workspace:*",
     "@taro-minify-pack/plugin-async-pack": "workspace:*",
     "@taro-minify-pack/plugin-bundle-analyzer": "workspace:*",
+    "@taro-minify-pack/plugin-bundle-stats": "workspace:*",
     "@taro-minify-pack/plugin-cover-browserslist": "workspace:*",
     "@taro-minify-pack/plugin-remote-assets": "workspace:*"
   },

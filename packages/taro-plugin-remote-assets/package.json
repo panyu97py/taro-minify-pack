@@ -1,6 +1,6 @@
 {
   "name": "@taro-minify-pack/plugin-remote-assets",
-  "version": "0.1.4-alpha.2",
+  "version": "0.1.4-alpha.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,8 +28,8 @@
     "@babel/traverse": "^7.26.10",
     "@babel/types": "^7.26.10",
     "@supercharge/promise-pool": "^3.2.0",
+    "@taro-minify-pack/helper": "workspace:*",
     "ali-oss": "^6.23.0",
-    "md5": "^2.3.0",
     "mini-css-extract-plugin": "^2.9.2",
     "postcss": "^8.5.3"
   },
@@ -40,7 +40,6 @@
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
     "@types/babel__traverse": "^7.20.6",
-    "@types/md5": "^2.3.5",
     "@types/node": "^18.19.130",
     "@types/webpack-sources": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^8.26.1",

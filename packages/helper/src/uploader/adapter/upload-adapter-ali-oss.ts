@@ -1,14 +1,17 @@
 import { defineUploaderAdapter } from './define-adapter'
-import { LocalAssetInfo } from '@/types'
+import { LocalAssetInfo } from '../types'
 import AliOss from 'ali-oss'
 
+const defaultFileName = (localAssetInfo: LocalAssetInfo) => localAssetInfo.uniqueKey
+
 export interface AliOssUploadAdapterOpt extends AliOss.Options {
+  fileName?: (localAssetInfo: LocalAssetInfo)=>string
   customDomain?: string
   bucketDir?: string
 }
 
 export const aliOssUploadAdapter = defineUploaderAdapter((opt: AliOssUploadAdapterOpt) => {
-  const { customDomain, bucketDir = '/', ...aliOssOpt } = opt
+  const { customDomain, bucketDir = '', fileName = defaultFileName, ...aliOssOpt } = opt
 
   const client = new AliOss(aliOssOpt)
 
@@ -25,13 +28,13 @@ export const aliOssUploadAdapter = defineUploaderAdapter((opt: AliOssUploadAdapt
   const uploadToAliOss = async (...args: Parameters<AliOss['put']>) => client.put(...args)
 
   const getRemoteAssetPath = (localAssetInfo: LocalAssetInfo) => {
-    const { uniqueKey, ext } = localAssetInfo
-    return `${bucketDir}/${uniqueKey}${ext}`
+    const { ext } = localAssetInfo
+    return `${bucketDir}/${fileName(localAssetInfo)}${ext}`
   }
 
   const getRemoteAssetUrl = (localAssetInfo: LocalAssetInfo) => {
-    const { uniqueKey, ext } = localAssetInfo
-    if (customDomain) return `${customDomain}/${uniqueKey}${ext}`
+    const { ext } = localAssetInfo
+    if (customDomain) return `${customDomain}/${fileName(localAssetInfo)}${ext}`
     const remotePath = getRemoteAssetPath(localAssetInfo)
     return client.signatureUrl(remotePath)
   }
