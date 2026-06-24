@@ -2,7 +2,7 @@ import { defineUploaderAdapter } from './define-adapter'
 import { LocalAssetInfo } from '../types'
 import AliOss from 'ali-oss'
 
-const defaultFileName = (localAssetInfo: LocalAssetInfo)=> localAssetInfo.uniqueKey
+const defaultFileName = (localAssetInfo: LocalAssetInfo) => localAssetInfo.uniqueKey
 
 export interface AliOssUploadAdapterOpt extends AliOss.Options {
   fileName?: (localAssetInfo: LocalAssetInfo)=>string
@@ -11,7 +11,7 @@ export interface AliOssUploadAdapterOpt extends AliOss.Options {
 }
 
 export const aliOssUploadAdapter = defineUploaderAdapter((opt: AliOssUploadAdapterOpt) => {
-  const { customDomain, bucketDir = '/', fileName = defaultFileName, ...aliOssOpt } = opt
+  const { customDomain, bucketDir = '', fileName = defaultFileName, ...aliOssOpt } = opt
 
   const client = new AliOss(aliOssOpt)
 
