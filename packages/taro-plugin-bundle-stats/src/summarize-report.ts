@@ -45,12 +45,6 @@ const formatSize = (size: number) => {
   return `${(size / 1024 / 1024).toFixed(2)}MB`
 }
 
-const formatSymbol = (val: number) => {
-  if (val > 0) return '+'
-  if (val < 0) return '-'
-  return ''
-}
-
 /**
  * 统计
  */
@@ -58,7 +52,7 @@ const summaryMetric = <T extends BaseMetricRun> (metric: Metric<T>[]) => {
   const currentTotalSize = metric.reduce((result, item) => getCurMetricRunInfo(item).value + result, 0)
   const baselineTotalSize = metric.reduce((result, item) => getBaselineMetricRunInfo(item).value + result, 0)
   const sizeDelta = currentTotalSize - baselineTotalSize
-  const displaySizeDelta = `${formatSymbol(sizeDelta)}${formatSize(sizeDelta)}`
+  const displaySizeDelta = `${sizeDelta > 0 ? '+' : ''}${formatSize(sizeDelta)}`
   const displayCurrentTotalSize = formatSize(currentTotalSize)
   const displayBaselineTotalSize = formatSize(baselineTotalSize)
   return { currentTotalSize, baselineTotalSize, sizeDelta, displayCurrentTotalSize, displayBaselineTotalSize, displaySizeDelta }

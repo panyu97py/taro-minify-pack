@@ -17,6 +17,7 @@
 | @taro-minify-pack/plugin-remote-assets      | 将静态资源上传到远程 CDN，减少主包大小，加快资源加载速度                |
 | @taro-minify-pack/plugin-cover-browserslist | 根据微信小程序基础库版本自动设置 browserslist，减少不必要的 polyfill |
 | @taro-minify-pack/plugin-bundle-analyzer    | 可视化分析包体积，帮助识别体积过大的模块和依赖                       |
+| @taro-minify-pack/plugin-bundle-stats       | 统计包体积统计信息，帮助分析包体积趋势和变化                        |
 
 ## 📦 安装
 
@@ -93,6 +94,8 @@ module.exports = {
             },
             // 包体积分析配置
             bundleAnalyzer: true,
+            // 开启包体积统计配置
+            bundleStats: true,
             // 开启异步加载主包代码，优化主包体积
             asyncPack: true
         }],
@@ -165,6 +168,54 @@ module.exports = {
                 analyzerPort: 8888,
                 // 是否自动打开报告
                 openAnalyzer: true
+            },
+            // 开启包体积统计配置
+            bundleStats: {
+                // 是否生成 JSON 报告
+                json: true,
+                // 是否生成 HTML 报告
+                html: true,
+                // 是否静默模式
+                silent: false,
+                // 是否生成对比报告
+                compare: true,
+                // 是否生成 baseline.json
+                baseline: true,
+                // 报告保存路径
+                reportPath: 'bundleStatsReport',
+                // baseline.json 保存路径
+                baselinePath: 'baseline.json',
+                // 上传配置
+                upload: aliOssUploadAdapter({
+                    customDomain: 'https://your-custom-domain.com',
+                    accessKeyId: 'your-access-key-id',
+                    accessKeySecret: 'your-access-key-secret',
+                    bucket: 'your-bucket-name',
+                    bucketDir: 'bucketDir',
+                    region: 'your-region',
+                }),
+                stats: {
+                   // Output webpack assets information (default: true)
+                   assets: true,
+                   // Output webpack chunks information (default: true)
+                   chunks: true,
+                   // Output webpack modules information (default: true)
+                   modules: true,
+                   // Output webpack hash information (default: true)
+                   hash: true,
+                   // Output webpack builtAt information (default: true)
+                   builtAt: true
+                },
+                reportConfig: {
+                   // 报告告显示数量限制
+                   displayLimit: 20,
+                   // 聚焦指标运行配置
+                   focusMetricRun: {
+                      assets: [],
+                      modules: [],
+                      packages: []
+                   }
+                }
             }
         }],
     ],
@@ -211,6 +262,21 @@ module.exports = {
 | analyzerHost | `string`             | `'127.0.0.1'` | 服务器主机    |
 | analyzerPort | `number` \| `'auto'` | `8888`        | 服务器端口    |
 | openAnalyzer | `boolean`            | `true`        | 是否自动打开报告 |
+
+### bundleStats 配置
+
+| 选项名          | 类型                                                             | 默认值                   | 描述                 |
+|--------------|----------------------------------------------------------------|-----------------------|--------------------|
+| json         | `boolean`                                                      | `true`                | 是否生成 JSON 报告       |
+| html         | `boolean`                                                      | `true`                | 是否生成 HTML 报告       |
+| silent       | `boolean`                                                      | `false`               | 是否静默模式             |
+| compare      | `boolean`                                                      | `true`                | 是否生成对比报告           |
+| baseline     | `boolean`                                                      | `true`                | 是否生成 baseline.json |
+| reportPath   | `string`                                                       | `'bundleStatsReport'` | 报告保存路径             |
+| baselinePath | `string`                                                       | `'baseline.json'`     | baseline.json 保存路径 |
+| upload       | `Function`                                                     | -                     | 上传配置               |
+| stats        | `Partial<WebpackStatsOptions>`                                 | -                     | 统计信息配置             |
+| reportConfig | `Omit<SummarizeReportOpt, 'appConfig' \| 'bundleStatsReport'>` | -                     | 报告配置               |
 
 ## 🎯 使用场景
 

@@ -61,6 +61,8 @@ export default (ctx: IPluginContext, pluginOpts: Partial<BundleStatsOpt> = {}) =
     async fn () {
       const { appPath } = ctx.paths
       const assetsDirPath = path.resolve(appPath, reportPath)
+      if (!fs.existsSync(assetsDirPath)) return console.log('bundle-stats report directory not exists, upload bundle-stats report skipped.')
+      if (!upload) return console.log('No upload configuration, upload bundle-stats report skipped.')
       await uploadAssets({ assetsDirPath, upload })
       console.log('✨ upload bundle-stats report success.')
     }
