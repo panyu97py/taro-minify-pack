@@ -59,7 +59,9 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   if (!types.isMemberExpression(left)) return
 
-  if (!types.isFunctionExpression(right)) return
+  // webpack5 的 loadScript 在产物中可能是 FunctionExpression 或 ArrowFunctionExpression（受
+  // output.environment.arrowFunction 影响，Taro 3.6.x 默认产物为箭头函数），二者都需命中
+  if (!types.isFunction(right)) return
 
   if (!types.isIdentifier(left.object, { name: '__webpack_require__' })) return
 
@@ -96,6 +98,8 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
   assignmentExpressionNodePath.insertBefore(loadDynamicModuleFnMapAst)
 
   assignmentExpressionNodePath.insertBefore(templateCodeDepAst)
+
+  return true
 }
 
 const webpackLoadDynamicStylesheetTemplate = `
@@ -118,7 +122,7 @@ const replaceWebpackLoadDynamicModuleStylesheetFn = (path: NodePath<UnaryExpress
 
       if (!types.isMemberExpression(left)) return
 
-      if (!types.isFunctionExpression(right)) return
+      if (!types.isFunction(right)) return
 
       if (!types.isMemberExpression(left.object)) return
 
@@ -143,13 +147,35 @@ const replaceWebpackLoadDynamicModuleStylesheetFn = (path: NodePath<UnaryExpress
 
 export const transformWebpackRuntime = (code: string, opts: Opts) => {
   const ast = parser.parse(code) // 将代码解析为 AST
+
+  let loadScriptMatched = false
+
   traverse(ast, {
     UnaryExpression: (nodePath: NodePath<UnaryExpression>) => {
       replaceWebpackLoadDynamicModuleStylesheetFn(nodePath, opts)
     },
     AssignmentExpression: (nodePath: NodePath<AssignmentExpression>) => {
-      replaceWebpackLoadScriptFn(nodePath, opts)
+      const matched = replaceWebpackLoadScriptFn(nodePath, opts)
+
+      loadScriptMatched = loadScriptMatched || !!matched
     }
   })
+
+  const hasDynamicJsAssets = Object.keys(opts.assets).some((assetName) => {
+    return isDynamicPackageAsset(opts, assetName) && matchSuffix('js', assetName)
+  })
+
+  // fail loud：配置了动态分包但 runtime 的 loadScript 未被替换时，异步 chunk 会退回
+  // 浏览器 script 注入（document.createElement），在微信小程序环境必然加载失败，
+  // 且该失败发生在真机运行时，构建期无任何报错——必须在构建期显式暴露
+  if (hasDynamicJsAssets && !loadScriptMatched) {
+    console.warn(
+      '[taro-plugin-async-pack] 未能在 runtime.js 中匹配 __webpack_require__.l（loadScript）赋值，' +
+        '异步 chunk 加载将退回浏览器实现，在微信小程序环境会运行时失败。' +
+        '已知 workaround：webpackChain 中设置 output.environment.arrowFunction = false，' +
+        '使 runtime 降为普通函数形态；或将你的 Taro/webpack 版本与插件兼容矩阵对照确认。'
+    )
+  }
+
   return generator(ast).code
 }
