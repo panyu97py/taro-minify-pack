@@ -11,7 +11,7 @@
     "version": "lerna version"
   },
   "author": "yu.pan",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "lerna": "^9.0.3"
   }
