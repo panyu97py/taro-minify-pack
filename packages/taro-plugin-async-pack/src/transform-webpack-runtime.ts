@@ -15,10 +15,8 @@ interface Opts extends AsyncPackOpts {
 }
 
 const webpackLoadDynamicModuleTemplateDep = `
-  var loadedDynamicModules = {};
   var loadDynamicModule = function (dynamicModulePath) {
-    var loadDynamicModuleFn = loadDynamicModuleFnMap[dynamicModulePath];
-    return loadDynamicModuleFn ? loadDynamicModuleFn() : Promise.reject();
+    return require.async(\`~/\${dynamicModulePath}\`);
   };
   var promiseRetry = function (apply,retries = 6,delay = 500) {
     return apply().catch(function (error) {
@@ -39,7 +37,7 @@ const webpackLoadDynamicModuleTemplate = `
       inProgress[dynamicModulePath].push(done);
       return;
     }
-    
+
     const target = { src: dynamicModulePath };
 
     if (loadedDynamicModules[dynamicModulePath]) return done({ type: 'loaded', target });
@@ -73,29 +71,11 @@ const replaceWebpackLoadScriptFn = (assignmentExpressionNodePath: NodePath<Assig
 
   if (isProcessed) return
 
-  const { assets } = opts
-
-  const dynamicJsAssets = Object.keys(assets).filter((assetName) => {
-    return isDynamicPackageAsset(opts, assetName) && matchSuffix('js', assetName)
-  })
-
-  const loadDynamicModuleFnMapCode = (() => {
-    const dynamicAssetsRequireTempCode = dynamicJsAssets.map((dynamicJsAsset) => {
-      return `'/${dynamicJsAsset}':function (){ return require.async('~/${dynamicJsAsset}'); }`
-    })
-
-    return `var loadDynamicModuleFnMap = {${dynamicAssetsRequireTempCode.join(',')}}`
-  })()
-
   const templateCodeAst = template.ast(webpackLoadDynamicModuleTemplate) as Statement
-
-  const loadDynamicModuleFnMapAst = template.ast(loadDynamicModuleFnMapCode)
 
   const templateCodeDepAst = template.ast(webpackLoadDynamicModuleTemplateDep)
 
   assignmentExpressionNodePath.replaceWith(templateCodeAst)
-
-  assignmentExpressionNodePath.insertBefore(loadDynamicModuleFnMapAst)
 
   assignmentExpressionNodePath.insertBefore(templateCodeDepAst)
 
