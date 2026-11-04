@@ -18,7 +18,7 @@
 
 ## ✨ Features
 
-- � 基于微信 `require.async` 实现分包异步加载（替代 `import()`）
+- 🚀 将 `import()` 动态导入的模块拆到分包，通过微信 `require.async` 加载
 - 🎨 利用组件 `styleIsolation` 实现样式分包加载（适用于非首屏）
 - 🌐 静态资源自动上传并替换为远程地址，减小主包体积
 - 🎯 根据小程序基础库动态生成 `browserslist`，减少冗余兼容代码
@@ -42,14 +42,17 @@
 
 ```text
 .
-├── examples/
-│   └── taro-react-demo/                # 示例项目
+├── example/
+│   ├── framework-react/              # React 示例项目
+│   └── framework-vue/                # Vue 示例项目
 ├── packages/
-│   ├── taro-preset/                    # 预设方案
+│   ├── helper/                       # 公共上传工具与适配器
+│   ├── taro-preset/                  # 预设方案
 │   ├── taro-plugin-bundle-analyzer/    # 包体积分析插件
+│   ├── taro-plugin-bundle-stats/      # 包体积统计与报告插件
 │   ├── taro-plugin-async-pack/         # 主包异步拆分插件
 │   ├── taro-plugin-remote-assets/      # 远程资源插件
-│   ├── taro-plugin-cover-browserslist  # browserslist 覆盖插件
+│   └── taro-plugin-cover-browserslist/ # browserslist 覆盖插件
 └── README.md
 ```
 

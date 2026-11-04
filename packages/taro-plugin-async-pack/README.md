@@ -1,6 +1,6 @@
 # @taro-minify-pack/plugin-async-pack
 
-异步加载主包代码，优化主包体积（仅包含异步模块`js`文件）
+将 `import()` 动态导入的 JS 模块拆到异步分包，优化主包体积；样式默认同步加载，可为自定义分包启用异步样式。
 
 ## ✨ 功能特性
 
@@ -86,12 +86,13 @@ const module = await import('./dynamic-module')
 ### React 组件懒加载
 ```tsx
 import { lazy, Suspense } from 'react'
+import { View } from '@tarojs/components'
 
 const DynamicComponent = lazy(() => import('./DynamicComponent'))
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<View>Loading...</View>}>
       <DynamicComponent />
     </Suspense>
   )
@@ -114,7 +115,7 @@ function App() {
 </template>
 
 <script setup>
-import {defineAsyncComponent, ref} from 'vue'
+import { defineAsyncComponent } from 'vue'
 const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 )
 </script>
@@ -131,9 +132,9 @@ const AsyncComponent = defineAsyncComponent(() => import('./async-component')
 2. **样式处理**：
    - 默认会先把未开启异步样式的分包样式合并成 `${dynamicPackageNamePrefix}.wxss`
    - 编译 `app.wxss` 时自动补上一条 `@import './${dynamicPackageNamePrefix}.wxss'`，让这部分样式继续跟随主包同步加载
-   - 当 `customDynamicPackages[].asyncStyle = true` 时，会在对应自定义分包下额外生成一个 `inject-style` 组件
+   - 当 `customDynamicPackages[].asyncStyle = true` 时，会在对应自定义分包下额外生成一个 `inject-dynamic-style` 组件
    - 这个组件会收集该分包目录下的所有 `.wxss` 文件，并生成多个 `@import './xxx.wxss'` 引用，让样式跟随分包一起下发
-   - 构建结束后会继续改写 `app.json` 和页面 `wxml`：把 `inject-style` 注册到 `usingComponents` / `componentPlaceholder`，再把组件节点追加到页面模板中，借此触发该分包样式的异步加载
+   - 构建结束后会继续改写 `app.json` 和页面 `wxml`：把 `inject-dynamic-style` 注册到 `usingComponents` / `componentPlaceholder`，再把组件节点追加到页面模板中，借此触发该分包样式的异步加载
 
 3. **小程序配置修改**：
    - 自动修改 `app.json`，添加异步分包配置
@@ -166,7 +167,7 @@ interface CustomDynamicPackage {
 
 - `name`：自定义异步分包标识，最终会拼成 `${dynamicPackageNamePrefix}-${name}`，例如 `dynamic-package-report`
 - `test`：直接透传给 webpack `splitChunks.cacheGroups[packageName].test`，命中的异步模块会被拆到该分包
-- `asyncStyle`：默认 `false`。开启后会为该分包额外生成 `inject-style` 组件，并自动注入到页面模板中，让该分包内样式跟随组件异步加载
+- `asyncStyle`：默认 `false`。开启后会为该分包额外生成 `inject-dynamic-style` 组件，并自动注入到页面模板中，让该分包内样式跟随组件异步加载
 
 ### `customDynamicPackages` 配置示例
 
@@ -190,7 +191,7 @@ plugins: [
 ]
 ```
 
-上述配置会额外生成 `dynamic-package-sync-style` 和 `dynamic-package-async-style` 两个异步分包；其中 `async-style` 分包会同时产出 `inject-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
+上述配置会额外生成 `dynamic-package-sync-style` 和 `dynamic-package-async-style` 两个异步分包；其中 `async-style` 分包会同时产出 `inject-dynamic-style` 组件，并在编译时自动追加到 `app.json` 与页面模板中。
 
 ## 🤝 常见问题
 
@@ -202,7 +203,7 @@ plugins: [
 
 ### 2. 为什么样式文件没有异步？
 - 先检查 `customDynamicPackages[].test` 是否真的命中了目标模块；如果没有命中，样式会走默认同步合并逻辑，而不会进入对应自定义异步分包
-- 再检查该自定义分包的 `asyncStyle` 是否为 `true`；只有开启后才会额外生成 `inject-style` 组件，并触发异步样式注入
+- 再检查该自定义分包的 `asyncStyle` 是否为 `true`；只有开启后才会额外生成 `inject-dynamic-style` 组件，并触发异步样式注入
 - `module.identifier()` 代表 webpack 给当前模块生成的唯一标识，通常会包含 loader 链、查询参数和源文件绝对路径，比单纯看文件名更适合排查 `test` 是否命中
 - 排查时可以先在 `test` 回调里临时打印 `module.identifier()`，确认真实值后再收窄正则规则，例如只匹配其中稳定的源码路径片段：
 
