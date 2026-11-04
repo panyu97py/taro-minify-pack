@@ -1,4 +1,4 @@
-## @taro-minify-pack/preset
+# @taro-minify-pack/preset
 
 > 预设配置，整合了 @taro-minify-pack 系列核心插件，提供一键式优化解决方案，简化 Taro 项目的性能优化配置。
 
@@ -9,6 +9,8 @@
 - `@taro-minify-pack/plugin-cover-browserslist`: 根据微信小程序基础库版本自动设置 browserslist
 - `@taro-minify-pack/plugin-bundle-analyzer`: 包体积分析工具
 
+当前源码声明了 `bundleStats` 选项，但实际会误注册 `plugin-bundle-analyzer`，无法启用统计报告。需要统计报告时，请额外安装并在 Taro 的 `plugins` 中直接配置 [`@taro-minify-pack/plugin-bundle-stats`](../taro-plugin-bundle-stats/README.md)，不要同时启用 preset 的 `bundleStats`。
+
 ## ✨ 功能特性
 
 | 插件名称                                        | 功能描述                                          |
@@ -17,7 +19,7 @@
 | @taro-minify-pack/plugin-remote-assets      | 将静态资源上传到远程 CDN，减少主包大小，加快资源加载速度                |
 | @taro-minify-pack/plugin-cover-browserslist | 根据微信小程序基础库版本自动设置 browserslist，减少不必要的 polyfill |
 | @taro-minify-pack/plugin-bundle-analyzer    | 可视化分析包体积，帮助识别体积过大的模块和依赖                       |
-| @taro-minify-pack/plugin-bundle-stats       | 统计包体积统计信息，帮助分析包体积趋势和变化                        |
+| @taro-minify-pack/plugin-bundle-stats       | 包体积统计与报告，当前需独立配置插件                        |
 
 ## 📦 安装
 
@@ -79,7 +81,7 @@ module.exports = {
                 },
                 assetsDirPath: path.resolve(__dirname, '../src/assets/'),
                 uploader: aliOssUploadAdapter({
-                    customDomain: 'https://your-custom-domain.com',
+                    customDomain: 'https://your-custom-domain.com/bucketDir',
                     accessKeyId: 'your-access-key-id',
                     accessKeySecret: 'your-access-key-secret',
                     bucket: 'your-bucket-name',
@@ -94,8 +96,6 @@ module.exports = {
             },
             // 包体积分析配置
             bundleAnalyzer: true,
-            // 开启包体积统计配置
-            bundleStats: true,
             // 开启异步加载主包代码，优化主包体积
             asyncPack: true
         }],
@@ -108,7 +108,7 @@ module.exports = {
 ```js
 // config/index.js
 const path = require('path')
-const {aliOssUploadAdapter} = require('@taro-minify-pack/remote-assets-adapter-ali-oss')
+const {aliOssUploadAdapter} = require('@taro-minify-pack/preset')
 
 module.exports = {
     compiler: {
@@ -128,7 +128,7 @@ module.exports = {
                 },
                 assetsDirPath: path.resolve(__dirname, '../src/assets/'),
                 uploader: aliOssUploadAdapter({
-                    customDomain: 'https://your-custom-domain.com',
+                    customDomain: 'https://your-custom-domain.com/bucketDir',
                     accessKeyId: 'your-access-key-id',
                     accessKeySecret: 'your-access-key-secret',
                     bucket: 'your-bucket-name',
@@ -168,54 +168,6 @@ module.exports = {
                 analyzerPort: 8888,
                 // 是否自动打开报告
                 openAnalyzer: true
-            },
-            // 开启包体积统计配置
-            bundleStats: {
-                // 是否生成 JSON 报告
-                json: true,
-                // 是否生成 HTML 报告
-                html: true,
-                // 是否静默模式
-                silent: false,
-                // 是否生成对比报告
-                compare: true,
-                // 是否生成 baseline.json
-                baseline: true,
-                // 报告保存路径
-                reportPath: 'bundleStatsReport',
-                // baseline.json 保存路径
-                baselinePath: 'baseline.json',
-                // 上传配置
-                upload: aliOssUploadAdapter({
-                    customDomain: 'https://your-custom-domain.com',
-                    accessKeyId: 'your-access-key-id',
-                    accessKeySecret: 'your-access-key-secret',
-                    bucket: 'your-bucket-name',
-                    bucketDir: 'bucketDir',
-                    region: 'your-region',
-                }),
-                stats: {
-                   // Output webpack assets information (default: true)
-                   assets: true,
-                   // Output webpack chunks information (default: true)
-                   chunks: true,
-                   // Output webpack modules information (default: true)
-                   modules: true,
-                   // Output webpack hash information (default: true)
-                   hash: true,
-                   // Output webpack builtAt information (default: true)
-                   builtAt: true
-                },
-                reportConfig: {
-                   // 报告告显示数量限制
-                   displayLimit: 20,
-                   // 聚焦指标运行配置
-                   focusMetricRun: {
-                      assets: [],
-                      modules: [],
-                      packages: []
-                   }
-                }
             }
         }],
     ],
@@ -232,6 +184,9 @@ module.exports = {
 | remoteAssets      | `RemoteAssetPluginOpt`           | -       | 远程资源上传配置                    |
 | coverBrowsersList | `CoverBrowsersListOpt`           | -       | 自动设置 browserslist 配置        |
 | bundleAnalyzer    | `boolean` \| `BundleAnalyzerOpt` | `false` | 包体积分析配置，设为 `true` 使用默认配置    |
+| bundleStats | `boolean` \| `BundleStatsOpt` | `false` | 当前误注册 analyzer，请改用独立统计插件 |
+
+`AsyncPackOpts` 的类型字段为必填，preset 使用对象配置时需提供完整字段；独立 async-pack 插件接受 `Partial<AsyncPackOpts>`。未配置的插件不会启用。
 
 ### asyncPack 配置
 
@@ -263,7 +218,9 @@ module.exports = {
 | analyzerPort | `number` \| `'auto'` | `8888`        | 服务器端口    |
 | openAnalyzer | `boolean`            | `true`        | 是否自动打开报告 |
 
-### bundleStats 配置
+### bundleStats 配置（独立插件）
+
+以下选项应传给 `plugins` 中的 `@taro-minify-pack/plugin-bundle-stats`。首次构建无基线文件时设置 `baselinePath: ''`；`reportConfig` 当前尚未传入摘要生成函数，详见该插件文档。
 
 | 选项名          | 类型                                                             | 默认值                   | 描述                 |
 |--------------|----------------------------------------------------------------|-----------------------|--------------------|
@@ -289,7 +246,7 @@ module.exports = {
 
 1. **预打包冲突**：当启用 `asyncPack` 时，必须关闭 Taro 的预打包功能（`compiler.prebundle.enable = false`），否则会导致构建冲突。
 
-2. **Babel 配置**：必须在 Babel 配置中添加 `'dynamic-import-node': process.env.TARO_ENV !== 'weapp'`，以确保异步加载功能在不同环境下正常工作。
+2. **Babel 配置**：启用 `asyncPack` 时，必须在 Babel 配置中添加 `'dynamic-import-node': process.env.TARO_ENV !== 'weapp'`，以确保异步加载功能在不同环境下正常工作。
 
 3. **远程资源上传**：使用 `remoteAssets` 时，需要提供有效的上传适配器和配置信息，确保资源能够正确上传到远程服务器。
 
