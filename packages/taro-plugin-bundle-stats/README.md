@@ -7,7 +7,7 @@
 - **打包报告生成**：自动生成 HTML / JSON 格式的 Bundle Stats 报告，可视化展示打包结果
 - **基线对比**：支持与基线版本对比，直观展示资源、模块、依赖的变化趋势
 - **主包分析**：自动识别主包资源与模块，按业务模块 / 依赖模块分类展示
-- **重点指标关注**：可配置重点关注资源、模块、依赖包，精准追踪关键指标变化
+- **重点指标关注**：类型中提供重点关注配置；当前插件尚未将该配置传入摘要生成函数
 - **摘要报告**：构建完成后自动生成 Markdown 格式的摘要报告，方便在 CI 或消息通知中使用
 - **报告上传**：支持自定义上传函数，将报告产物上传至 OSS 等存储服务
 
@@ -37,8 +37,8 @@ module.exports = {
     ['@taro-minify-pack/plugin-bundle-stats', {
       // 报告输出目录（相对于项目根目录），默认为 'bundleStatsReport'
       reportPath: 'bundleStatsReport',
-      // 基线文件路径，支持本地路径或远程 URL，默认为 'baseline.json'
-      baselinePath: 'baseline.json',
+      // 首次构建没有基线文件时设为空字符串，跳过基线加载
+      baselinePath: '',
       // 是否生成 HTML 报告，默认为 true
       html: true,
       // 是否生成 JSON 报告，默认为 true
@@ -71,7 +71,9 @@ taro build --type weapp
 
 ### 基线对比
 
-首次构建会生成 `baseline.json`，后续构建会自动与基线进行对比，在报告中展示变化量（Delta）和变化比例（Delta Percentage）。
+首次构建没有基线文件时，请设置 `baselinePath: ''`，避免默认配置尝试复制不存在的 `baseline.json` 而报错。启用 `baseline: true` 后，当前基线输出到 `bundleStatsReport/baseline.json`，后续构建仍可保留空字符串以使用该文件。
+
+如需固定对比基线，请在构建前将生成的文件另存为制品，并将 `baselinePath` 指向该文件或远程 URL。非空本地路径按构建进程的工作目录解析；指向报告目录内同一个基线文件时，应使用绝对路径以跳过复制。
 
 如果需要与远程基线对比，可以配置 `baselinePath` 为 HTTP URL：
 
@@ -85,7 +87,7 @@ plugins: [
 
 ### 重点关注指标
 
-通过 `reportConfig.focusMetricRun` 配置需要重点关注的资源、模块和依赖包：
+`reportConfig` 的类型定义包含以下选项，但当前插件调用 `summarizeReport` 时未传入该配置，因此 `focusMetricRun` 和 `displayLimit` 暂不生效，摘要仍使用默认展示上限 20。以下仅展示配置结构：
 
 ```js
 plugins: [
@@ -95,7 +97,7 @@ plugins: [
         // 重点关注资源路径
         assets: ['pages/index/index.js', 'common/vendor.js'],
         // 重点关注模块名称
-        modules: 'lodash',
+        modules: ['lodash'],
         // 重点关注依赖包名称
         packages: ['lodash', 'dayjs'],
       },
@@ -111,9 +113,9 @@ plugins: [
 通过 `upload` 配置自定义上传函数，将报告产物上传至 OSS 等存储服务：
 
 ```js
-const { defineAdapter, uploadAdapterAliOss } = require('@taro-minify-pack/helper')
+const { aliOssUploadAdapter } = require('@taro-minify-pack/helper')
 
-const ossUploader = uploadAdapterAliOss({
+const ossUploader = aliOssUploadAdapter({
   region: 'oss-cn-hangzhou',
   accessKeyId: 'your-access-key-id',
   accessKeySecret: 'your-access-key-secret',
@@ -123,13 +125,14 @@ const ossUploader = uploadAdapterAliOss({
 module.exports = {
   plugins: [
     ['@taro-minify-pack/plugin-bundle-stats', {
+      baselinePath: '',
       upload: ossUploader,
     }],
   ],
 }
 ```
 
-配置 `upload` 后，可通过 Taro CLI 执行上传命令：
+使用该示例前需安装 `@taro-minify-pack/helper`。配置 `upload` 后，可通过 Taro CLI 执行上传命令：
 
 ```bash
 taro upload-bundle-stats-report
@@ -148,7 +151,7 @@ taro upload-bundle-stats-report
 ## ⚠️ 注意事项
 
 1. **仅支持 Webpack 5**：当前插件依赖 `bundle-stats-webpack-plugin`，仅适用于 Webpack 5 编译器
-2. **基线文件**：首次构建没有基线可对比，Delta 列会为空；建议在 CI 环境中将 `baseline.json` 作为制品保存
+2. **基线文件**：首次构建没有基线时设置 `baselinePath: ''`；建议在 CI 环境中将报告目录中的 `baseline.json` 作为制品保存
 3. **报告目录**：`reportPath` 目录位于项目根目录下，建议在 `.gitignore` 中忽略该目录
 4. **远程基线**：`baselinePath` 支持 HTTP/HTTPS URL，插件会在构建前自动下载
 
@@ -160,11 +163,11 @@ taro upload-bundle-stats-report
 | `json` | `boolean` | `true` | 是否生成 JSON 报告 |
 | `compare` | `boolean` | `true` | 是否与基线对比 |
 | `baseline` | `boolean` | `true` | 是否保存基线文件 |
-| `baselinePath` | `string` | `'baseline.json'` | 基线文件路径，支持本地路径或远程 URL |
+| `baselinePath` | `string` | `'baseline.json'` | 基线文件路径，支持本地路径或远程 URL；空字符串跳过加载，非空本地路径必须存在 |
 | `reportPath` | `string` | `'bundleStatsReport'` | 报告输出目录（相对于项目根目录） |
 | `upload` | `Uploader` | — | 自定义上传函数，用于上传报告产物 |
 | `stats` | `Partial<WebpackStatsOptions>` | — | Webpack Stats 输出选项 |
-| `reportConfig` | `object` | — | 摘要报告配置 |
+| `reportConfig` | `object` | — | 摘要报告配置，当前尚未传入摘要生成函数 |
 
 ### `reportConfig` 配置说明
 
@@ -172,7 +175,7 @@ taro upload-bundle-stats-report
 interface ReportConfig {
   focusMetricRun?: {
     assets?: string[]
-    modules?: string
+    modules?: string[]
     packages?: string[]
   }
   displayLimit?: number
@@ -180,7 +183,7 @@ interface ReportConfig {
 ```
 
 - `focusMetricRun.assets`：重点关注的资源路径列表，在摘要报告中单独展示
-- `focusMetricRun.modules`：重点关注的模块名称，在摘要报告中单独展示
+- `focusMetricRun.modules`：重点关注的模块名称列表，按完整名称匹配
 - `focusMetricRun.packages`：重点关注的依赖包名称列表，在摘要报告中单独展示
 - `displayLimit`：摘要报告中业务模块 / 依赖模块的展示数量上限，默认为 20
 

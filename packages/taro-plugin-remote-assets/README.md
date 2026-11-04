@@ -57,7 +57,7 @@ pnpm add @taro-minify-pack/plugin-remote-assets
 |-----------------|------|--------------------------|------|------------------------|
 | `assetsDirPath` | 是    | `string`                 | -    | 本地静态资源根目录，用于限制可上传的资源范围 |
 | `pathAlias`     | 否    | `Record<string, string>` | `{}` | 路径别名映射，用于解析代码中的资源引用    |
-| `uploader`      | 是    | `UploadAdapter`          | -    | 资源上传适配器，需返回资源的远程访问 URL |
+| `uploader`      | 否    | `Uploader`               | -    | 上传函数，返回包含 `remoteUrl` 的资源信息；未配置时跳过上传 |
 
 ### 🔌 自定义上传适配器
 
@@ -67,13 +67,8 @@ pnpm add @taro-minify-pack/plugin-remote-assets
 #### 接口定义
 
 ```ts
-import { LocalAssetInfo, defineUploaderAdapter } from '@taro-minify-pack/plugin-remote-assets'
-
-interface LocalAssetInfo {
-  localPath: string;      // 本地资源文件路径
-  uniqueKey: string;      // 基于文件内容生成的 MD5 值
-  ext: string;            // 文件扩展名
-}
+import { defineUploaderAdapter } from '@taro-minify-pack/helper'
+import type { LocalAssetInfo } from '@taro-minify-pack/helper'
 
 export interface CustomUploadAdapterOpt {
   // 自定义适配器参数
@@ -90,10 +85,10 @@ export const customUploadAdapter = defineUploaderAdapter((opt: CustomUploadAdapt
 
 #### 内置阿里云 OSS 适配器
 
-插件内置了阿里云 OSS 上传适配器，可直接使用：
+阿里云 OSS 上传适配器由 `@taro-minify-pack/helper` 提供。使用下列示例前，请额外安装该包（例如 `pnpm add @taro-minify-pack/helper`）：
 
 ```ts
-import { aliOssUploadAdapter } from '@taro-minify-pack/plugin-remote-assets'
+import { aliOssUploadAdapter } from '@taro-minify-pack/helper'
 
 interface AliOssUploadAdapterOpt {
   customDomain?: string;      // 自定义域名（可选）
@@ -112,7 +107,7 @@ interface AliOssUploadAdapterOpt {
 ```js
 // config/index.js
 const path = require('path')
-const { aliOssUploadAdapter } = require('@taro-minify-pack/plugin-remote-assets')
+const { aliOssUploadAdapter } = require('@taro-minify-pack/helper')
 
 module.exports = {
     plugins: [
@@ -126,7 +121,7 @@ module.exports = {
             assetsDirPath: path.resolve(__dirname, '../src/assets/'),
             // 上传适配器（以阿里云 OSS 为例）
             uploader: aliOssUploadAdapter({
-                customDomain: 'https://your-custom-domain.com',
+                customDomain: 'https://your-custom-domain.com/taro-assets',
                 accessKeyId: 'your-access-key-id',
                 accessKeySecret: 'your-access-key-secret',
                 bucket: 'your-bucket-name',
@@ -140,32 +135,33 @@ module.exports = {
 
 ## 🧠 工作原理简述
 
-1. **构建开始**：插件在构建开始时扫描指定的静态资源目录
+1. **构建开始**：插件在构建开始时扫描指定的静态资源目录，上传其中所有未命中内容缓存的文件（不限于已引用文件）
 2. **资源分析**：
    - 递归遍历目录下所有文件
    - 基于文件内容生成 MD5 值作为唯一标识
    - 检查缓存文件，跳过已上传的资源
 3. **并发上传**：使用 PromisePool 并发上传新资源（默认并发数：2）
-4. **生成缓存**：将上传结果写入缓存文件（node_modules/.cache/remote-assets-cache.json）
+4. **生成缓存**：将上传结果写入缓存文件（node_modules/.cache/remote-assets.json）
 5. **路径转换**：
    - Babel 插件：替换 JS/TS 文件中的 import 语句
    - PostCSS 插件：替换 CSS 文件中的 url() 引用
 6. **构建完成**：最终产物中静态资源路径已替换为远程 URL
 
+路径转换依赖与缓存完全匹配的本地路径，建议按示例配置绝对路径别名；当前不会自动按引用文件所在目录解析相对路径。CSS 请使用带引号的单个 `url()`，避免复合背景声明或同一声明中的多个 URL。
+
 ### 缓存机制
 
 插件使用本地缓存文件记录已上传的资源信息，避免重复上传：
-- 缓存文件路径：`node_modules/.cache/remote-assets-cache.json`
+- 缓存文件路径：`node_modules/.cache/remote-assets.json`
 - 缓存键：本地资源文件路径
-- 缓存值：远程资源访问 URL
+- 缓存值：包含 `localPath`、`uniqueKey`、`ext`、`remoteUrl` 的资源信息
 - 每次构建前会检查缓存，仅上传新的或修改过的资源
 
 ### 资源唯一性校验
 
 为确保资源唯一性，插件使用文件内容的 MD5 值作为唯一标识：
 - 即使文件名相同，只要内容不同，也会被视为不同资源
-- 生成的 MD5 值会作为文件名的一部分上传到存储服务
-- 确保同一资源不会被重复存储
+- 内置 OSS 适配器默认以 MD5 加扩展名作为远程文件名；自定义适配器可另行决定命名和去重方式
 
 ## 📌 适用场景
 
@@ -213,7 +209,7 @@ const logo = 'https://your-cdn.com/taro-assets/2f9b7a8c9d0e1f2a3b4c5d6e7f8a9b0c.
 ### 2. 为什么修改了资源后没有重新上传？
 
 - 插件基于文件内容的 MD5 值判断资源是否修改
-- 如果仅修改了文件名而内容未变，不会重新上传
+- 当前缓存按内容 MD5 过滤上传；重命名或复制同内容文件可能缺少新路径的映射，遇到路径未替换时请清理缓存后重建
 - 如需强制重新上传，可删除缓存文件后重新构建
 
 ### 3. 如何处理动态引入的资源？
@@ -230,7 +226,7 @@ const logo = 'https://your-cdn.com/taro-assets/2f9b7a8c9d0e1f2a3b4c5d6e7f8a9b0c.
 ### 5. 如何自定义缓存文件路径？
 
 - 当前版本不支持自定义缓存文件路径
-- 缓存文件固定在 `node_modules/.cache/remote-assets-cache.json`
+- 缓存文件固定在 `node_modules/.cache/remote-assets.json`
 
 ## 📄 许可证
 

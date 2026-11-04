@@ -10,7 +10,6 @@
 * 🧩 上传适配器定义工具（`defineUploaderAdapter`），支持类型安全地自定义适配器
 * ☁️ 内置阿里云 OSS 上传适配器，开箱即用
 * 🔑 基于文件内容 MD5 的资源唯一性校验
-* 📁 递归目录文件遍历工具
 
 ## 📦 安装
 
@@ -56,8 +55,8 @@ const results = await uploadAssets({
 
 | 参数名             | 是否必填 | 类型                           | 默认值                  | 说明                     |
 |-----------------|------|------------------------------|----------------------|------------------------|
-| `assetsDirPath` | 是    | `string`                     | -                    | 本地静态资源根目录              |
-| `upload`        | 是    | `Uploader`                   | -                    | 上传函数，接收资源信息并返回远程 URL   |
+| `assetsDirPath` | 否    | `string`                     | -                    | 本地静态资源根目录；缺省时返回空数组 |
+| `upload`        | 否    | `Uploader`                   | -                    | 上传函数；缺省时返回空数组 |
 | `payload`       | 否    | `any`                        | -                    | 透传给 upload 函数的额外参数     |
 | `processAssets` | 否    | `(assets) => assets`         | `(assets) => assets` | 上传前对资源列表进行过滤或排序       |
 
@@ -95,7 +94,7 @@ const uploader = aliOssUploadAdapter({
   bucket: 'your-bucket-name',
   region: 'oss-cn-hangzhou',
   bucketDir: 'taro-assets',            // 可选，OSS 存储目录前缀，默认为根目录
-  customDomain: 'https://cdn.example.com', // 可选，自定义域名
+  customDomain: 'https://cdn.example.com/taro-assets', // 可选，需包含 bucketDir 对应的路径
   fileName: (info) => info.uniqueKey,   // 可选，远程文件名生成函数，默认使用 uniqueKey
 })
 ```
@@ -109,18 +108,18 @@ const uploader = aliOssUploadAdapter({
 | `bucket`         | 是    | `string`                             | -                       | OSS Bucket 名称            |
 | `region`         | 是    | `string`                             | -                       | OSS 区域                   |
 | `bucketDir`      | 否    | `string`                             | `''`                    | OSS 存储目录前缀               |
-| `customDomain`   | 否    | `string`                             | -                       | 自定义域名，设置后远程 URL 使用该域名    |
+| `customDomain`   | 否    | `string`                             | -                       | URL 前缀；当前实现不会自动拼接 `bucketDir`，需自行包含对应路径 |
 | `fileName`       | 否    | `(info) => string`                   | `(info) => info.uniqueKey` | 远程文件名生成函数               |
 
-### 工具函数
+### 内部工具函数
+
+以下函数仅供包内部使用，未从包入口导出，不能通过 `@taro-minify-pack/helper` 导入。
 
 #### `travelFiles(dir)`
 
-递归遍历目录，返回所有文件的绝对路径列表。
+递归遍历目录，返回所有文件路径；传入绝对目录时返回绝对路径。
 
 ```ts
-import { travelFiles } from '@taro-minify-pack/helper'
-
 const files = travelFiles('/path/to/directory')
 // => ['/path/to/directory/a.png', '/path/to/directory/sub/b.png']
 ```
@@ -130,8 +129,6 @@ const files = travelFiles('/path/to/directory')
 基于文件内容生成 MD5 唯一标识。
 
 ```ts
-import { generateFileUniqueKey } from '@taro-minify-pack/helper'
-
 const key = generateFileUniqueKey('/path/to/file.png')
 // => '2f9b7a8c9d0e1f2a3b4c5d6e7f8a9b0c'
 ```
@@ -161,7 +158,7 @@ type UploaderAdapter<T = any> = (opt: T) => Uploader
 ## 🧠 工作原理
 
 1. **文件扫描**：`travelFiles` 递归遍历指定目录，收集所有文件路径
-2. **唯一性校验**：`generateFileUniqueKey` 读取文件内容并生成 MD5 值，确保同一内容不会重复上传
+2. **内容标识**：`generateFileUniqueKey` 读取文件内容并生成 MD5 值；`uploadAssets` 本身不做去重，需由 `processAssets` 或上传适配器处理
 3. **并发上传**：`uploadAssets` 使用 `@supercharge/promise-pool` 控制并发数（默认为 2），批量上传资源
 4. **适配器模式**：通过 `defineUploaderAdapter` 定义上传适配器，将上传逻辑与存储服务解耦，支持灵活扩展
 
@@ -184,7 +181,7 @@ type UploaderAdapter<T = any> = (opt: T) => Uploader
 
 1. **内部依赖**：该包主要为 `@taro-minify-pack` 系列插件提供公共能力，一般不单独使用
 2. **并发控制**：`uploadAssets` 默认并发数为 2，避免对存储服务造成过大压力
-3. **文件唯一性**：基于文件内容 MD5 生成唯一标识，仅修改文件名不会触发重新上传
+3. **文件唯一性**：基于文件内容 MD5 生成唯一标识；是否跳过上传取决于调用方的过滤逻辑和适配器实现
 4. **OSS 适配器**：使用 `aliOssUploadAdapter` 需要确保阿里云 OSS 配置正确，且有足够的访问权限
 
 ## 📄 许可证
